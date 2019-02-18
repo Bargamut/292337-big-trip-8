@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Павел Петров](https://up.htmlacademy.ru/ecmascript/8/user/292337).
-* Наставник: `Неизвестно`.
+* Наставник: [Даниил Оношко](https://up.htmlacademy.ru/ecmascript/8/user/154426).
 
 ---
 
