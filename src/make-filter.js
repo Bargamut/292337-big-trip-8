@@ -1,4 +1,10 @@
-export default (id, filter) => {
+/**
+ * @description Создание шаблона фильтра
+ * @param {*} id ID фильтра
+ * @param {Object} filter Объект описания фильтра
+ * @return {Node} DOM-элемент <template> фильтра
+ */
+const makeFilterTemplate = (id, filter) => {
   const nodeFilterTemplate = document.createElement(`template`);
 
   nodeFilterTemplate.innerHTML =
@@ -7,3 +13,5 @@ export default (id, filter) => {
 
   return nodeFilterTemplate;
 };
+
+export default makeFilterTemplate;
