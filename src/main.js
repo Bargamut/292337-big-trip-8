@@ -1,21 +1,24 @@
 import makeFilter from './make-filter';
 import makeTripPoint from './make-trip-point';
 
-const pointsFilters = {
-  everything: {
+const pointsFilters = new Set([
+  {
+    id: `everything`,
     caption: `Everything`,
     value: `everything`,
     isChecked: true
   },
-  future: {
+  {
+    id: `future`,
     caption: `Future`,
     value: `future`
   },
-  past: {
+  {
+    id: `past`,
     caption: `Past`,
     value: `past`
   }
-};
+]);
 const tripPoints = [
   {
     icon: `🚕`,
@@ -58,20 +61,16 @@ document.addEventListener(`DOMContentLoaded`, () => {
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
  * @param {Node} nodeFiltersBar - DOM-элемент блока фильтров
- * @param {Object} [tripPointsFilters={}] - Объект описания фильтров
+ * @param {Set} [tripPointsFilters=new Set()] - Объект описания фильтров
  */
-const renderFilters = function (nodeFiltersBar, tripPointsFilters = {}) {
+const renderFilters = function (nodeFiltersBar, tripPointsFilters = new Set()) {
   const docFragmentFilters = document.createDocumentFragment();
 
-  for (let key in tripPointsFilters) {
-    if (!tripPointsFilters.hasOwnProperty(key)) {
-      continue;
-    }
-
+  tripPointsFilters.forEach((objTripFilter) => {
     docFragmentFilters.appendChild(
-        makeFilter(key, tripPointsFilters[key]).content.cloneNode(true)
+        makeFilter(objTripFilter).content.cloneNode(true)
     );
-  }
+  });
 
   nodeFiltersBar.innerHTML = ``;
   nodeFiltersBar.appendChild(docFragmentFilters);
