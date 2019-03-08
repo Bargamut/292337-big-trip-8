@@ -1,54 +1,50 @@
 /**
- * @description Создание шаблона заказов в точке маршрута
- * @param {Object} tripPointOffer Объект описания заказа
+ * @description Создание шаблона заказов при событии маршрута
+ * @param {Object} tripDayItemOffer Объект описания заказа
  * @return {Node} DOM-элемент <template> заказа
  */
-const makeTripOffersTemplate = (tripPointOffer) => {
-  const nodeTripPointOfferTemplate = document.createElement(`template`);
+const makeTripOffersTemplate = (tripDayItemOffer) => {
+  const nodeTripDayItemOfferTemplate = document.createElement(`template`);
 
-  nodeTripPointOfferTemplate.innerHTML =
+  nodeTripDayItemOfferTemplate.innerHTML =
     `<li>
-      <button class="trip-point__offer">${tripPointOffer.caption} +${tripPointOffer.price.currency}&nbsp;${tripPointOffer.price.value}</button>
+      <button class="trip-point__offer">${tripDayItemOffer.caption} +${tripDayItemOffer.price.currency}&nbsp;${tripDayItemOffer.price.value}</button>
     </li>`;
 
-  return nodeTripPointOfferTemplate;
+  return nodeTripDayItemOfferTemplate;
 };
 
 /**
- * @description Создание шаблона точки маршрута
- * @param {Object} tripPoint Объект описания точки маршрута
- * @return {Node} DOM-элемент <template> точки маршрута
+ * @description Создание шаблона события маршрута
+ * @param {Object} tripDayItem Объект описания события маршрута
+ * @return {Node} DOM-элемент <template> события маршрута
  */
-const makeTripPointTemplate = (tripPoint) => {
-  const nodeTripPointTemplate = document.createElement(`template`);
+const makeTripDayItemTemplate = (tripDayItem) => {
+  const nodetripDayItemTemplate = document.createElement(`template`);
 
-  nodeTripPointTemplate.innerHTML =
+  nodetripDayItemTemplate.innerHTML =
     `<article class="trip-point">
-      <i class="trip-icon">${tripPoint.icon}</i>
+      <i class="trip-icon">${tripDayItem.icon}</i>
 
-      <h3 class="trip-point__title">${tripPoint.title}</h3>
+      <h3 class="trip-point__title">${tripDayItem.title}</h3>
 
       <p class="trip-point__schedule">
-        <span class="trip-point__timetable">${tripPoint.timetable.since} — ${tripPoint.timetable.since}</span>
-        <span class="trip-point__duration">${tripPoint.duration}</span>
+        <span class="trip-point__timetable">${tripDayItem.schedule.timetable.since} — ${tripDayItem.schedule.timetable.to}</span>
+        <span class="trip-point__duration">${tripDayItem.schedule.duration}</span>
       </p>
 
-      <p class="trip-point__price">${tripPoint.price.currency}&nbsp;${tripPoint.price.value}</p>
+      <p class="trip-point__price">${tripDayItem.price.currency}&nbsp;${tripDayItem.price.value}</p>
 
       <ul class="trip-point__offers"></ul>
     </article>`;
 
-  for (let key in tripPoint.offers) {
-    if (!tripPoint.offers.hasOwnProperty(key)) {
-      continue;
-    }
-
-    nodeTripPointTemplate.content.querySelector(`.trip-point__offers`).appendChild(
-        makeTripOffersTemplate(tripPoint.offers[key]).content.cloneNode(true)
+  tripDayItem.offers.forEach((offer) => {
+    nodetripDayItemTemplate.content.querySelector(`.trip-point__offers`).appendChild(
+        makeTripOffersTemplate(offer).content.cloneNode(true)
     );
-  }
+  });
 
-  return nodeTripPointTemplate;
+  return nodetripDayItemTemplate;
 };
 
-export default makeTripPointTemplate;
+export default makeTripDayItemTemplate;
