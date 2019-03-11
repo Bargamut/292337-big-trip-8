@@ -17,9 +17,9 @@ document.addEventListener(`DOMContentLoaded`, () => {
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
  * @param {Node} nodeFiltersBar DOM-элемент блока фильтров
- * @param {Set} [tripPointsFilters=new Set()] Объект описания фильтров
+ * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
  */
-const renderFilters = function (nodeFiltersBar, tripPointsFilters = new Set()) {
+const renderFilters = function (nodeFiltersBar, tripPointsFilters = []) {
   const docFragmentFilters = document.createDocumentFragment();
 
   tripPointsFilters.forEach((objTripFilter) => {

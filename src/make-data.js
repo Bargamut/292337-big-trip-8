@@ -13,7 +13,7 @@ const arrayDescriptionPhrases = [
   `Nunc fermentum tortor ac porta dapibus.`,
   `In rutrum ac purus sit amet tempus.`
 ];
-const tripItemTypes = new Set([
+const arrayItems = [
   {type: `Taxi`, icon: `🚕`, caption: `Taxi to Airport`},
   {type: `Bus`, icon: `🚌`, caption: `Bus to `, toCity: true},
   {type: `Train`, icon: `🚂`, caption: `Train to `, toCity: true},
@@ -24,8 +24,8 @@ const tripItemTypes = new Set([
   {type: `Check-in`, icon: `🏨`, caption: `Check into a hotel`},
   {type: `Sightseeing`, icon: `🏛️`, caption: `Go to sightseeing`},
   {type: `Restaurant`, icon: `🍴`, caption: `Go to reastaurant`}
-]);
-const setOffers = new Set([
+];
+const arrayOffers = [
   {
     caption: `Add luggage`,
     price: {currency: CURRENT_CURRENCY, value: 15}
@@ -42,15 +42,14 @@ const setOffers = new Set([
     caption: `Choose seats`,
     price: {currency: CURRENT_CURRENCY, value: 20}
   }
-]);
+];
 
 const generateTripDayItem = () => {
-  const arrayItemTypes = Array.from(tripItemTypes);
-  const itemType = arrayItemTypes[getRandomInt(arrayItemTypes.length)];
+  const currentItem = arrayItems[getRandomInt(arrayItems.length)];
 
   return {
-    icon: itemType.icon,
-    title: `${itemType.caption} ${itemType.toCity ? arrayCities[getRandomInt(arrayCities.length)] : ``}`.trim(),
+    icon: currentItem.icon,
+    title: `${currentItem.caption} ${currentItem.toCity ? arrayCities[getRandomInt(arrayCities.length)] : ``}`.trim(),
     description: generateDescription(),
     picture: `http://picsum.photos/300/150?r=${Math.random()}`,
     schedule: {
@@ -69,19 +68,18 @@ const generateTripDayItem = () => {
 };
 
 const generateDescription = () => {
-  const currPhrases = [];
+  const currentPhrases = [];
   const countPhrases = getRandomInt(3, 1);
 
-  while (currPhrases.length !== countPhrases) {
-    currPhrases.push(arrayDescriptionPhrases[getRandomInt(arrayDescriptionPhrases.length)]);
+  while (currentPhrases.length !== countPhrases) {
+    currentPhrases.push(arrayDescriptionPhrases[getRandomInt(arrayDescriptionPhrases.length)]);
   }
 
-  return currPhrases.join(` `);
+  return currentPhrases.join(` `);
 };
 
 const generateOffers = (length = 0) => {
   const currentOffers = new Set();
-  const arrayOffers = Array.from(setOffers);
 
   while (currentOffers.size !== length) {
     currentOffers.add(arrayOffers[getRandomInt(arrayOffers.length)]);
@@ -94,7 +92,7 @@ const getRandomInt = (max, min = 0) => Math.floor(Math.random() * (max - min)) +
 
 export default generateTripDayItem;
 
-export const pointsFilters = new Set([
+export const pointsFilters = [
   {
     id: `everything`,
     caption: `Everything`,
@@ -111,4 +109,4 @@ export const pointsFilters = new Set([
     caption: `Past`,
     value: `past`
   }
-]);
+];
