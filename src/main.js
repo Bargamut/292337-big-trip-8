@@ -1,69 +1,25 @@
 import makeFilter from './make-filter';
-import makeTripPoint from './make-trip-point';
+import makeTripDayItem from './make-trip-point';
+import generateTripDayItem, {pointsFilters} from './make-data';
 
-const pointsFilters = new Set([
-  {
-    id: `everything`,
-    caption: `Everything`,
-    value: `everything`,
-    isChecked: true
-  },
-  {
-    id: `future`,
-    caption: `Future`,
-    value: `future`
-  },
-  {
-    id: `past`,
-    caption: `Past`,
-    value: `past`
-  }
-]);
-const tripPoints = [
-  {
-    icon: `🚕`,
-    title: `Taxi to Airport`,
-    timetable: {
-      since: `10:00`, to: `11:00`
-    },
-    duration: `1H 30M`,
-    price: {
-      currency: `&euro;`, value: 20
-    },
-    offers: [
-      {
-        caption: `Order UBER`,
-        price: {
-          currency: `&euro;`, value: 20
-        }
-      },
-      {
-        caption: `Upgrade to business`,
-        price: {
-          currency: `&euro;`, value: 20
-        }
-      }
-    ]
-  }
-];
+const currentTripDayItems = [];
 
 document.addEventListener(`DOMContentLoaded`, () => {
-  const currentTripPoints = [];
-
-  for (let i = 0; i < 7; i++) {
-    currentTripPoints.push(tripPoints[0]);
+  // Набираем 7 элементов
+  while (currentTripDayItems.length < 7) {
+    currentTripDayItems.push(generateTripDayItem());
   }
 
   renderFilters(document.querySelector(`.trip-filter`), pointsFilters);
-  renderTripPoints(document.querySelector(`.trip-day__items`), currentTripPoints);
+  renderTripDayItems(document.querySelector(`.trip-day__items`), currentTripDayItems);
 });
 
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Node} nodeFiltersBar - DOM-элемент блока фильтров
- * @param {Set} [tripPointsFilters=new Set()] - Объект описания фильтров
+ * @param {Node} nodeFiltersBar DOM-элемент блока фильтров
+ * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
  */
-const renderFilters = function (nodeFiltersBar, tripPointsFilters = new Set()) {
+const renderFilters = function (nodeFiltersBar, tripPointsFilters = []) {
   const docFragmentFilters = document.createDocumentFragment();
 
   tripPointsFilters.forEach((objTripFilter) => {
@@ -78,21 +34,21 @@ const renderFilters = function (nodeFiltersBar, tripPointsFilters = new Set()) {
 };
 
 /**
- * @description Отрисовка списка точек маршрута
- * @param {Node} nodeTripDayItems DOM-элемент блока точек маршрута
- * @param {Array} [points=[]] Массив точек маршрута
+ * @description Отрисовка списка событий маршрута
+ * @param {Node} nodeTripDayItems DOM-элемент блока событий маршрута
+ * @param {Array} [dayItems=[]] Массив событий маршрута
  */
-const renderTripPoints = function (nodeTripDayItems, points = []) {
-  const docFragmentTripPoints = document.createDocumentFragment();
+const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
+  const docFragmentTripDayItems = document.createDocumentFragment();
 
-  for (let point of points) {
-    docFragmentTripPoints.appendChild(
-        makeTripPoint(point).content.cloneNode(true)
+  for (let item of dayItems) {
+    docFragmentTripDayItems.appendChild(
+        makeTripDayItem(item).content.cloneNode(true)
     );
   }
 
   nodeTripDayItems.innerHTML = ``;
-  nodeTripDayItems.appendChild(docFragmentTripPoints);
+  nodeTripDayItems.appendChild(docFragmentTripDayItems);
 };
 
 /**
@@ -109,8 +65,8 @@ const onFilterClick = (evt) => {
   }
 
   for (let i = 0; ++i <= randNumPoints;) {
-    currentTripPoints.push(tripPoints[0]);
+    currentTripPoints.push(generateTripDayItem());
   }
 
-  renderTripPoints(document.querySelector(`.trip-day__items`), currentTripPoints);
+  renderTripDayItems(document.querySelector(`.trip-day__items`), currentTripPoints);
 };
