@@ -1,5 +1,5 @@
 import makeFilter from './make-filter';
-import makeTripDayItem from './make-trip-point';
+import DayItem from './day-item';
 import generateTripDayItem, {pointsFilters} from './make-data';
 
 const currentTripDayItems = [];
@@ -42,8 +42,10 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
   const docFragmentTripDayItems = document.createDocumentFragment();
 
   for (let item of dayItems) {
+    const componendDayItem = new DayItem(item);
+
     docFragmentTripDayItems.appendChild(
-        makeTripDayItem(item).content.cloneNode(true)
+        componendDayItem.render()
     );
   }
 
