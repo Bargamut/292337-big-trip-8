@@ -5,18 +5,25 @@
 export default class DayItemEdit {
   /**
    * @description Конструктор класса DayItemEdit
-   * @param {Object} tripDayItem Объект описания события маршрута
+   * @param {Object} item Объект описания события маршрута
+   * @param {Map} dataDestinations Map описания пунктов прибытия
+   * @param {Array} dataItems Массив описания событий маршрута
    * @memberof DayItemEdit
    */
-  constructor(tripDayItem) {
-    this._icon = tripDayItem.icon;
-    this._title = tripDayItem.title;
-    this._description = tripDayItem.description;
-    this._picture = tripDayItem.picture;
-    this._schedule = tripDayItem.schedule;
-    this._price = tripDayItem.price;
-    this._offers = tripDayItem.offers;
+  constructor(item, dataDestinations, dataItems) {
+    this._icon = item.icon;
+    this._title = item.title;
+    this._destination = item.destination;
+    this._caption = item.caption;
+    this._description = item.description;
+    this._picture = item.picture;
+    this._schedule = item.schedule;
+    this._price = item.price;
+    this._offers = item.offers;
     this._element = null;
+
+    this._destinations = dataDestinations;
+    this._dataItems = dataItems;
 
     this._nodeItemForm = null;
 
@@ -33,7 +40,7 @@ export default class DayItemEdit {
     const nodetripDayItemTemplate = document.createElement(`template`);
 
     nodetripDayItemTemplate.innerHTML =
-    `<article class="point">
+      `<article class="point">
         <form action="" method="get">
           <header class="point__header">
             <label class="point__date">
@@ -46,18 +53,15 @@ export default class DayItemEdit {
 
               <input type="checkbox" class="travel-way__toggle visually-hidden" id="travel-way__toggle">
 
-              ${this._getTravelWaySelectTemplate()}
+              <div class="travel-way__select">
+                ${this._getTravelWaySelectTemplate()}
+              </div>
             </div>
 
             <div class="point__destination-wrap">
-              <label class="point__destination-label" for="destination">Flight to</label>
-              <input class="point__destination-input" list="destination-select" id="destination" value="Chamonix" name="destination">
-              <datalist id="destination-select">
-                <option value="airport"></option>
-                <option value="Geneva"></option>
-                <option value="Chamonix"></option>
-                <option value="hotel"></option>
-              </datalist>
+              <label class="point__destination-label" for="destination">${this._caption}</label>
+              <input class="point__destination-input" list="destination-select" id="destination" value="${this._destination}" name="destination">
+              ${this._getDestinationsListTemplate()}
             </div>
 
             <label class="point__time">
@@ -106,14 +110,29 @@ export default class DayItemEdit {
     return nodetripDayItemTemplate;
   }
 
+  /**
+   * @description Геттер элемента события
+   * @readonly
+   * @memberof DayItemEdit
+   */
   get element() {
     return this._element;
   }
 
+  /**
+   * @description Сеттер установки обработчика по событию submit
+   * @param {Function} callback Функция-обработчик события
+   * @memberof DayItemEdit
+   */
   set onSubmit(callback) {
     this._onSubmit = callback;
   }
 
+  /**
+   * @description Сеттер установки функции-обработчика по событию reset
+   * @param {Function} callback Функцияобработчик события
+   * @memberof DayItemEdit
+   */
   set onReset(callback) {
     this._onReset = callback;
   }
@@ -133,6 +152,10 @@ export default class DayItemEdit {
     return this._element;
   }
 
+  /**
+   * @description Очистка свойств и отвязка обработчиков событий
+   * @memberof DayItemEdit
+   */
   unrender() {
     this._nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
     this._nodeItemForm.removeEventListener(`reset`, this._onClickReset);
@@ -147,75 +170,82 @@ export default class DayItemEdit {
    * @memberof DayItemEdit
    */
   _getTripOffersTemplate() {
-    let template =
-      `<input class="point__offers-input visually-hidden" type="checkbox" id="add-luggage" name="offer" value="add-luggage">
-      <label for="add-luggage" class="point__offers-label">
-        <span class="point__offer-service">Add luggage</span> + €<span class="point__offer-price">30</span>
-      </label>
+    let template = ``;
 
-      <input class="point__offers-input visually-hidden" type="checkbox" id="switch-to-comfort-class" name="offer" value="switch-to-comfort-class">
-      <label for="switch-to-comfort-class" class="point__offers-label">
-        <span class="point__offer-service">Switch to comfort class</span> + €<span class="point__offer-price">100</span>
-      </label>
-
-      <input class="point__offers-input visually-hidden" type="checkbox" id="add-meal" name="offer" value="add-meal">
-      <label for="add-meal" class="point__offers-label">
-        <span class="point__offer-service">Add meal </span> + €<span class="point__offer-price">15</span>
-      </label>
-
-      <input class="point__offers-input visually-hidden" type="checkbox" id="choose-seats" name="offer" value="choose-seats">
-      <label for="choose-seats" class="point__offers-label">
-        <span class="point__offer-service">Choose seats</span> + €<span class="point__offer-price">5</span>
-      </label>`;
-
-    // this._offers.forEach((offer) => {
-    //   template +=
-    //     `<li>
-    //       <button class="trip-point__offer">${offer.caption} +${offer.price.currency}&nbsp;${offer.price.value}</button>
-    //     </li>`;
-    // });
+    this._offers.forEach((offer) => {
+      template +=
+        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offer.type}" name="offer" value="${offer.type}" ${offer.isChecked ? `checked` : ``}>
+        <label for="${offer.type}" class="point__offers-label">
+          <span class="point__offer-service">${offer.caption}</span> + ${offer.price.currency}<span class="point__offer-price">${offer.price.value}</span>
+        </label>`;
+    });
 
     return template;
   }
 
+  /**
+   * @description Формирование раскрывающегося списка видов путешествия
+   * @return {String} Шаблон раскрывающегося списка
+   * @memberof DayItemEdit
+   */
   _getTravelWaySelectTemplate() {
-    const template =
-      `<div class="travel-way__select">
-        <div class="travel-way__select-group">
-          <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-taxi" name="travel-way" value="taxi">
-          <label class="travel-way__select-label" for="travel-way-taxi">🚕 taxi</label>
+    let template = ``;
+    let travelWayGroups = {};
 
-          <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-bus" name="travel-way" value="bus">
-          <label class="travel-way__select-label" for="travel-way-bus">🚌 bus</label>
+    for (let item of this._dataItems) {
+      if (typeof travelWayGroups[item.group] === `undefined`) {
+        travelWayGroups[item.group] = ``;
+      }
 
-          <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-train" name="travel-way" value="train">
-          <label class="travel-way__select-label" for="travel-way-train">🚂 train</label>
+      travelWayGroups[item.group] +=
+        `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${item.type}" name="travel-way" value="${item.type}" ${ item.icon === this._icon ? `checked` : ``}>
+        <label class="travel-way__select-label" for="travel-way-${item.type}">${item.icon} ${item.type}</label>`;
+    }
 
-          <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-flight" name="travel-way" value="train" checked>
-          <label class="travel-way__select-label" for="travel-way-flight">✈️ flight</label>
-        </div>
-
-        <div class="travel-way__select-group">
-          <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-check-in" name="travel-way" value="check-in">
-          <label class="travel-way__select-label" for="travel-way-check-in">🏨 check-in</label>
-
-          <input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-sightseeing" name="travel-way" value="sight-seeing">
-          <label class="travel-way__select-label" for="travel-way-sightseeing">🏛 sightseeing</label>
-        </div>
-      </div>`;
+    Object.values(travelWayGroups).forEach(function (templatePart) {
+      template +=
+        `<div class="travel-way__select-group">
+          ${templatePart}
+        </div>`;
+    });
 
     return template;
   }
 
+  /**
+   * @description Формирование изображений достопримечательностей
+   * @return {String} Шаблон изображения достопримечательностей
+   * @memberof DayItemEdit
+   */
   _getPointImagesTemplate() {
     const template =
       `<img src="${this._picture}" alt="picture from place" class="point__destination-image">`;
 
-    // Картинок может быть несколько
-
     return template;
   }
 
+  /**
+   * @description Формирование перечня пункцтов прибытия
+   * @return {String} Шаблон списка пунктов прибытия
+   * @memberof DayItemEdit
+   */
+  _getDestinationsListTemplate() {
+    let template = ``;
+
+    for (let destinations of this._destinations.values()) {
+      destinations.forEach(function (destination) {
+        template += `<option value="${destination}"></option>`;
+      });
+    }
+
+    return `<datalist id="destination-select">${template}</datalist>`;
+  }
+
+  /**
+   * @description Обработчик события отправки изменений формы
+   * @param {Event} evt - объект события
+   * @memberof DayItemEdit
+   */
   _onClickSubmit(evt) {
     evt.preventDefault();
 
@@ -224,6 +254,11 @@ export default class DayItemEdit {
     }
   }
 
+  /**
+   * @description Обработчик события сброса значений формы
+   * @param {Event} evt - объект события
+   * @memberof DayItemEdit
+   */
   _onClickReset(evt) {
     evt.preventDefault();
 

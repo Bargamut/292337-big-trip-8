@@ -1,7 +1,7 @@
 import makeFilter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
-import generateTripDayItem, {pointsFilters} from './make-data';
+import generateTripDayItem, {pointsFilters, mapDestinations, arrayItems} from './make-data';
 
 const currentTripDayItems = [];
 
@@ -44,7 +44,7 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
 
   for (let item of dayItems) {
     const componendDayItem = new DayItem(item);
-    const componendDayItemEdit = new DayItemEdit(item);
+    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, arrayItems);
 
     componendDayItem.onEdit = () => {
       componendDayItemEdit.render();

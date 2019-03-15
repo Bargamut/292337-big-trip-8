@@ -1,5 +1,8 @@
 const CURRENT_CURRENCY = `&euro;`;
-const arrayCities = [`Amsterdam`, `Geneva`, `Chamonix`];
+export const mapDestinations = new Map([
+  [`places`, [`airport`, `hotel`, `sightseeing`, `restaurant`]],
+  [`cities`, [`Amsterdam`, `Geneva`, `Chamonix`]]
+]);
 const arrayDescriptionPhrases = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
   `Cras aliquet varius magna, non porta ligula feugiat eget.`,
@@ -13,43 +16,27 @@ const arrayDescriptionPhrases = [
   `Nunc fermentum tortor ac porta dapibus.`,
   `In rutrum ac purus sit amet tempus.`
 ];
-const arrayItems = [
-  {type: `Taxi`, icon: `🚕`, caption: `Taxi to Airport`},
-  {type: `Bus`, icon: `🚌`, caption: `Bus to `, toCity: true},
-  {type: `Train`, icon: `🚂`, caption: `Train to `, toCity: true},
-  {type: `Ship`, icon: `🛳️`, caption: `Ship to `, toCity: true},
-  {type: `Transport`, icon: `🚊`, caption: `Transport to `, toCity: true},
-  {type: `Drive`, icon: `🚗`, caption: `Taxi to `, toCity: true},
-  {type: `Flight`, icon: `✈️`, caption: `Flight to `, toCity: true},
-  {type: `Check-in`, icon: `🏨`, caption: `Check into a hotel`},
-  {type: `Sightseeing`, icon: `🏛️`, caption: `Go to sightseeing`},
-  {type: `Restaurant`, icon: `🍴`, caption: `Go to reastaurant`}
-];
-const arrayOffers = [
-  {
-    caption: `Add luggage`,
-    price: {currency: CURRENT_CURRENCY, value: 15}
-  },
-  {
-    caption: `Switch to comfort class`,
-    price: {currency: CURRENT_CURRENCY, value: 25}
-  },
-  {
-    caption: `Add meal`,
-    price: {currency: CURRENT_CURRENCY, value: 10}
-  },
-  {
-    caption: `Choose seats`,
-    price: {currency: CURRENT_CURRENCY, value: 20}
-  }
+export const arrayItems = [
+  {icon: `🚌`, group: `cities`, type: `bus`, caption: `Bus to `},
+  {icon: `🚂`, group: `cities`, type: `train`, caption: `Train to `},
+  {icon: `🛳️`, group: `cities`, type: `ship`, caption: `Ship to `},
+  {icon: `🚊`, group: `cities`, type: `transport`, caption: `Transport to `},
+  {icon: `🚗`, group: `cities`, type: `drive`, caption: `Taxi to `},
+  {icon: `✈️`, group: `cities`, type: `flight`, caption: `Flight to `},
+  {icon: `🚕`, group: `places`, type: `taxi`, caption: `Taxi to `},
+  {icon: `🏨`, group: `places`, type: `check-in`, caption: `Check into a `},
+  {icon: `🏛️`, group: `places`, type: `sightseeing`, caption: `Go to `},
+  {icon: `🍴`, group: `places`, type: `restaurant`, caption: `Go to `}
 ];
 
 const generateTripDayItem = () => {
   const currentItem = arrayItems[getRandomInt(arrayItems.length)];
+  const destinations = mapDestinations.get(currentItem.group);
 
   return {
     icon: currentItem.icon,
-    title: `${currentItem.caption} ${currentItem.toCity ? arrayCities[getRandomInt(arrayCities.length)] : ``}`.trim(),
+    destination: destinations[getRandomInt(destinations.length)],
+    caption: currentItem.caption,
     description: generateDescription(),
     picture: `http://picsum.photos/300/150?r=${Math.random()}`,
     schedule: {
@@ -63,7 +50,32 @@ const generateTripDayItem = () => {
       currency: CURRENT_CURRENCY,
       value: getRandomInt(30, 10)
     },
-    offers: generateOffers(getRandomInt(3))
+    offers: [
+      {
+        type: `add-luggage`,
+        caption: `Add luggage`,
+        price: {currency: CURRENT_CURRENCY, value: 30},
+        isChecked: Math.random() > 0.5
+      },
+      {
+        type: `switch-to-comfort-class`,
+        caption: `Switch to comfort class`,
+        price: {currency: CURRENT_CURRENCY, value: 100},
+        isChecked: Math.random() > 0.5
+      },
+      {
+        type: `add-meal`,
+        caption: `Add meal`,
+        price: {currency: CURRENT_CURRENCY, value: 15},
+        isChecked: Math.random() > 0.5
+      },
+      {
+        type: `choose-seats`,
+        caption: `Choose seats`,
+        price: {currency: CURRENT_CURRENCY, value: 5},
+        isChecked: Math.random() > 0.5
+      }
+    ]
   };
 };
 
@@ -76,16 +88,6 @@ const generateDescription = () => {
   }
 
   return currentPhrases.join(` `);
-};
-
-const generateOffers = (length = 0) => {
-  const currentOffers = new Set();
-
-  while (currentOffers.size !== length) {
-    currentOffers.add(arrayOffers[getRandomInt(arrayOffers.length)]);
-  }
-
-  return currentOffers;
 };
 
 const getRandomInt = (max, min = 0) => Math.floor(Math.random() * (max - min)) + min;
