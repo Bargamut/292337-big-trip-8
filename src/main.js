@@ -1,6 +1,7 @@
 import makeFilter from './make-filter';
-import makeTripDayItem from './make-trip-point';
-import generateTripDayItem, {pointsFilters} from './make-data';
+import DayItem from './day-item';
+import DayItemEdit from './day-item-edit';
+import generateTripDayItem, {pointsFilters, mapDestinations, arrayItems} from './make-data';
 
 const currentTripDayItems = [];
 
@@ -42,8 +43,26 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
   const docFragmentTripDayItems = document.createDocumentFragment();
 
   for (let item of dayItems) {
+    const componendDayItem = new DayItem(item);
+    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, arrayItems);
+
+    componendDayItem.onEdit = () => {
+      componendDayItemEdit.render();
+      nodeTripDayItems.replaceChild(componendDayItemEdit.element, componendDayItem.element);
+      componendDayItem.unrender();
+    };
+
+    const switchToView = () => {
+      componendDayItem.render();
+      nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
+      componendDayItemEdit.unrender();
+    };
+
+    componendDayItemEdit.onSubmit = switchToView;
+    componendDayItemEdit.onReset = switchToView;
+
     docFragmentTripDayItems.appendChild(
-        makeTripDayItem(item).content.cloneNode(true)
+        componendDayItem.render()
     );
   }
 
