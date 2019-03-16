@@ -1,21 +1,25 @@
+import Component from './component';
+
 /**
  * @description Класс компонента события маршрута
+ * @exports
  * @class DayItem
+ * @extends {Component}
  */
-export default class DayItem {
+export default class DayItem extends Component {
   /**
    * @description Конструктор класса DayItem
    * @param {Object} tripDayItem Объект описания события маршрута
    * @memberof DayItem
    */
   constructor(tripDayItem) {
+    super();
     this._icon = tripDayItem.icon;
     this._caption = tripDayItem.caption;
     this._destination = tripDayItem.destination;
     this._schedule = tripDayItem.schedule;
     this._price = tripDayItem.price;
     this._offers = tripDayItem.offers;
-    this._element = null;
 
     this._onEdit = null;
   }
@@ -48,15 +52,6 @@ export default class DayItem {
   }
 
   /**
-   * @description Геттер элемента события маршрута
-   * @readonly
-   * @memberof DayItem
-   */
-  get element() {
-    return this._element;
-  }
-
-  /**
    * @description Сеттер установки функции-обработчика для редактирования
    * @param {Function} callback Функция-обработчик события
    * @memberof DayItem
@@ -66,26 +61,19 @@ export default class DayItem {
   }
 
   /**
-   * @description Метод отрисовки элемента события
-   * @return {Node} DOM-элемент карточки задачи
+   * @description Централизованная установка обработчиков событий
    * @memberof DayItem
    */
-  render() {
-    this._element = this.template.content.cloneNode(true).firstChild;
-
+  createListeners() {
     this._element.addEventListener(`click`, this._onClickEdit.bind(this));
-
-    return this._element;
   }
 
   /**
-   * @description Очистка свойств и отвязка обработчиков событий
+   * @description Централизованное снятие обработчиков событий
    * @memberof DayItem
    */
-  unrender() {
+  removeListeners() {
     this._element.removeEventListener(`click`, this._onClickEdit);
-
-    this._element = null;
   }
 
   /**
