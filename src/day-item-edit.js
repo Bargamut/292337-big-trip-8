@@ -1,8 +1,12 @@
+import Component from './component';
+
 /**
  * @description Класс компонента события маршрута
+ * @export
  * @class DayItemEdit
+ * @extends {Component}
  */
-export default class DayItemEdit {
+export default class DayItemEdit extends Component {
   /**
    * @description Конструктор класса DayItemEdit
    * @param {Object} item Объект описания события маршрута
@@ -11,6 +15,7 @@ export default class DayItemEdit {
    * @memberof DayItemEdit
    */
   constructor(item, dataDestinations, dataItems) {
+    super();
     this._icon = item.icon;
     this._title = item.title;
     this._destination = item.destination;
@@ -20,12 +25,9 @@ export default class DayItemEdit {
     this._schedule = item.schedule;
     this._price = item.price;
     this._offers = item.offers;
-    this._element = null;
 
     this._destinations = dataDestinations;
     this._dataItems = dataItems;
-
-    this._nodeItemForm = null;
 
     this._onSubmit = null;
     this._onReset = null;
@@ -111,15 +113,6 @@ export default class DayItemEdit {
   }
 
   /**
-   * @description Геттер элемента события
-   * @readonly
-   * @memberof DayItemEdit
-   */
-  get element() {
-    return this._element;
-  }
-
-  /**
    * @description Сеттер установки обработчика по событию submit
    * @param {Function} callback Функция-обработчик события
    * @memberof DayItemEdit
@@ -138,30 +131,27 @@ export default class DayItemEdit {
   }
 
   /**
-   * @description Метод отрисовки элемента события
-   * @return {Node} DOM-элемент карточки задачи
+   * @description Централизованная установка обработчиков событий
    * @memberof DayItemEdit
    */
-  render() {
-    this._element = this.template.content.cloneNode(true).firstChild;
-    this._nodeItemForm = this._element.querySelector(`form`);
+  createListeners() {
+    const nodeItemForm = this._element.querySelector(`form`);
 
-    this._nodeItemForm.addEventListener(`submit`, this._onClickSubmit.bind(this));
-    this._nodeItemForm.addEventListener(`reset`, this._onClickReset.bind(this));
-
-    return this._element;
+    nodeItemForm.addEventListener(`submit`, this._onClickSubmit.bind(this));
+    nodeItemForm.addEventListener(`reset`, this._onClickReset.bind(this));
   }
 
   /**
-   * @description Очистка свойств и отвязка обработчиков событий
+   * @description Централизованное снятие обработчиков событий
    * @memberof DayItemEdit
    */
-  unrender() {
-    this._nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
-    this._nodeItemForm.removeEventListener(`reset`, this._onClickReset);
+  removeListeners() {
+    const nodeItemForm = this._element.querySelector(`form`);
+
+    nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
+    nodeItemForm.removeEventListener(`reset`, this._onClickReset);
 
     this._nodeItemForm = null;
-    this._element = null;
   }
 
   /**
