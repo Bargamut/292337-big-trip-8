@@ -1,4 +1,3 @@
-const CURRENT_CURRENCY = `&euro;`;
 export const mapDestinations = new Map([
   [`places`, [`airport`, `hotel`, `sightseeing`, `restaurant`]],
   [`cities`, [`Amsterdam`, `Geneva`, `Chamonix`]]
@@ -28,6 +27,41 @@ export const arrayItems = [
   {icon: `🏛️`, group: `places`, type: `sightseeing`, caption: `Go to `},
   {icon: `🍴`, group: `places`, type: `restaurant`, caption: `Go to `}
 ];
+export const mapOffers = new Map([
+  [
+    `add-luggage`,
+    {
+      caption: `Add luggage`,
+      price: 30
+    }
+  ], [
+    `switch-to-comfort-class`,
+    {
+      caption: `Switch to comfort class`,
+      price: 100
+    }
+  ], [
+    `add-meal`,
+    {
+      caption: `Add meal`,
+      price: 15
+    }
+  ],
+  [
+    `choose-seats`,
+    {
+      caption: `Choose seats`,
+      price: 5
+    }
+  ]
+]);
+
+const arrayOffersTypes = [
+  `add-luggage`,
+  `switch-to-comfort-class`,
+  `add-meal`,
+  `choose-seats`
+];
 
 const generateTripDayItem = () => {
   const currentItem = arrayItems[getRandomInt(arrayItems.length)];
@@ -39,44 +73,24 @@ const generateTripDayItem = () => {
     caption: currentItem.caption,
     description: generateDescription(),
     picture: `http://picsum.photos/300/150?r=${Math.random()}`,
-    schedule: {
-      timetable: {
-        since: `${getRandomInt(6)}:00`,
-        to: `${getRandomInt(12, 7)}:00`
-      },
-      duration: `${getRandomInt(12)}h ${getRandomInt(59, 20)}m`,
+    time: {
+      since: `${getRandomInt(6)}:00`,
+      to: `${getRandomInt(12, 7)}:00`
     },
-    price: {
-      currency: CURRENT_CURRENCY,
-      value: getRandomInt(30, 10)
-    },
-    offers: [
-      {
-        type: `add-luggage`,
-        caption: `Add luggage`,
-        price: {currency: CURRENT_CURRENCY, value: 30},
-        isChecked: Math.random() > 0.5
-      },
-      {
-        type: `switch-to-comfort-class`,
-        caption: `Switch to comfort class`,
-        price: {currency: CURRENT_CURRENCY, value: 100},
-        isChecked: Math.random() > 0.5
-      },
-      {
-        type: `add-meal`,
-        caption: `Add meal`,
-        price: {currency: CURRENT_CURRENCY, value: 15},
-        isChecked: Math.random() > 0.5
-      },
-      {
-        type: `choose-seats`,
-        caption: `Choose seats`,
-        price: {currency: CURRENT_CURRENCY, value: 5},
-        isChecked: Math.random() > 0.5
-      }
-    ]
+    price: getRandomInt(30, 10),
+    offers: new Set(generateOffers())
   };
+};
+
+const generateOffers = () => {
+  const currentOffers = [];
+  const countOffers = getRandomInt(3, 1);
+
+  while (currentOffers.length !== countOffers) {
+    currentOffers.push(arrayOffersTypes[getRandomInt(arrayOffersTypes.length)]);
+  }
+
+  return currentOffers;
 };
 
 const generateDescription = () => {

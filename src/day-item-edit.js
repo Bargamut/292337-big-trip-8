@@ -12,9 +12,10 @@ export default class DayItemEdit extends Component {
    * @param {Object} item Объект описания события маршрута
    * @param {Map} dataDestinations Map описания пунктов прибытия
    * @param {Array} dataItems Массив описания событий маршрута
+   * @param {Map} dataOffers Map описания заказов при событии маршрута
    * @memberof DayItemEdit
    */
-  constructor(item, dataDestinations, dataItems) {
+  constructor(item, dataDestinations, dataItems, dataOffers) {
     super();
     this._icon = item.icon;
     this._title = item.title;
@@ -22,12 +23,13 @@ export default class DayItemEdit extends Component {
     this._caption = item.caption;
     this._description = item.description;
     this._picture = item.picture;
-    this._schedule = item.schedule;
+    this._time = item.time;
     this._price = item.price;
     this._offers = item.offers;
 
     this._destinations = dataDestinations;
     this._dataItems = dataItems;
+    this._dataOffers = dataOffers;
 
     this._onSubmit = null;
     this._onReset = null;
@@ -68,13 +70,13 @@ export default class DayItemEdit extends Component {
 
             <label class="point__time">
               choose time
-              <input class="point__input" type="text" value="${this._schedule.timetable.since} — ${this._schedule.timetable.to}" name="time" placeholder="00:00 — 00:00">
+              <input class="point__input" type="text" value="${this._time.since} — ${this._time.to}" name="time" placeholder="00:00 — 00:00">
             </label>
 
             <label class="point__price">
               write price
-              <span class="point__price-currency">${this._price.currency}</span>
-              <input class="point__input" type="text" value="${this._price.value}" name="price">
+              <span class="point__price-currency">&euro;</span>
+              <input class="point__input" type="text" value="${this._price}" name="price">
             </label>
 
             <div class="point__buttons">
@@ -130,6 +132,20 @@ export default class DayItemEdit extends Component {
     this._onReset = callback;
   }
 
+  static createMapper(target) {
+    return {
+      destination: (value) => (target.destination = value),
+      time: (value) => {
+        const schedule = {since: ``, to: ``};
+
+        [schedule.since, schedule.to] = value.split(` — `);
+
+        return schedule;
+      },
+      offer: (value) => target.offers.push(value)
+    };
+  }
+
   /**
    * @description Централизованная установка обработчиков событий
    * @memberof DayItemEdit
@@ -162,11 +178,11 @@ export default class DayItemEdit extends Component {
   _getTripOffersTemplate() {
     let template = ``;
 
-    this._offers.forEach((offer) => {
+    this._dataOffers.forEach((offer, offerType) => {
       template +=
-        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offer.type}" name="offer" value="${offer.type}" ${offer.isChecked ? `checked` : ``}>
-        <label for="${offer.type}" class="point__offers-label">
-          <span class="point__offer-service">${offer.caption}</span> + ${offer.price.currency}<span class="point__offer-price">${offer.price.value}</span>
+        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerType}" name="offer" value="${offerType}" ${this._offers.has(offerType) && `checked`}>
+        <label for="${offerType}" class="point__offers-label">
+          <span class="point__offer-service">${offer.caption}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
         </label>`;
     });
 
@@ -188,7 +204,7 @@ export default class DayItemEdit extends Component {
       }
 
       travelWayGroups[item.group] +=
-        `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${item.type}" name="travel-way" value="${item.type}" ${ item.icon === this._icon ? `checked` : ``}>
+        `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${item.type}" name="travel-way" value="${item.type}" ${ item.icon === this._icon && `checked`}>
         <label class="travel-way__select-label" for="travel-way-${item.type}">${item.icon} ${item.type}</label>`;
     }
 
@@ -231,6 +247,55 @@ export default class DayItemEdit extends Component {
     return `<datalist id="destination-select">${template}</datalist>`;
   }
 
+  _processForm(formData) {
+    const tempEntry = {
+      icon: ``,
+      destination: ``,
+      caption: ``,
+      description: ``,
+      picture: ``,
+      time: {
+        since: ``,
+        to: ``
+      },
+      price: 0,
+      offers: [
+        {
+          type: `add-luggage`,
+          caption: `Add luggage`,
+          price: 30,
+          isChecked: false
+        },
+        {
+          type: `switch-to-comfort-class`,
+          caption: `Switch to comfort class`,
+          price: 100,
+          isChecked: false
+        },
+        {
+          type: `add-meal`,
+          caption: `Add meal`,
+          price: 15,
+          isChecked: false
+        },
+        {
+          type: `choose-seats`,
+          caption: `Choose seats`,
+          price: 5,
+          isChecked: false
+        }
+      ]
+    };
+
+    const itemEditMapper = DayItemEdit.createMapper(tempEntry);
+
+    for (const [property, value] of formData.entries()) {
+      if (itemEditMapper[property]) {
+        itemEditMapper[property](value);
+      }
+    }
+  }
+
   /**
    * @description Обработчик события отправки изменений формы
    * @param {Event} evt - объект события
@@ -239,9 +304,16 @@ export default class DayItemEdit extends Component {
   _onClickSubmit(evt) {
     evt.preventDefault();
 
+    const nodeForm = this._element.querySelector(`form`);
+
+    const formData = new FormData(nodeForm);
+    const newData = this._processForm(formData);
+
     if (this._onSubmit instanceof Function) {
-      this._onSubmit();
+      this._onSubmit(newData);
     }
+
+    this.update(newData);
   }
 
   /**
