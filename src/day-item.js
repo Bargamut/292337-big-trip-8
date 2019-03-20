@@ -65,6 +65,11 @@ export default class DayItem extends Component {
     this._onEdit = callback;
   }
 
+  /**
+   * @description Обновить данные компонента
+   * @param {Object} data Объект данных, описывающих событие
+   * @memberof DayItem
+   */
   update(data) {
     this._icon = data.icon;
     this._destination = data.destination;

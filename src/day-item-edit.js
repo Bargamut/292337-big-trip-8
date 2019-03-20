@@ -139,6 +139,11 @@ export default class DayItemEdit extends Component {
     this._onReset = callback;
   }
 
+  /**
+   * @description Обновить данные компонента
+   * @param {Object} data Объект данных, описывающих событие
+   * @memberof DayItemEdit
+   */
   update(data) {
     this._icon = data.icon;
     this._destination = data.destination;
@@ -148,6 +153,13 @@ export default class DayItemEdit extends Component {
     this._offers = data.offers;
   }
 
+  /**
+   * @description Разметить данные для обновления компонента
+   * на основе данных формы
+   * @param {Object} target Целевой объект данных для обновления
+   * @return {Object} Объект с функциями переноса данных
+   * @memberof DayItemEdit
+   */
   createMapper(target) {
     return {
       'travel-way': (value) => {
@@ -201,6 +213,10 @@ export default class DayItemEdit extends Component {
     this._nodeItemForm = null;
   }
 
+  /**
+   * @description Обновление содержимого DOM компонента
+   * @memberof DayItemEdit
+   */
   _partialUpdate() {
     this._element.innerHTML = this.template.content.cloneNode(true).firstChild.innerHTML;
   }
@@ -282,6 +298,12 @@ export default class DayItemEdit extends Component {
     return `<datalist id="destination-select">${template}</datalist>`;
   }
 
+  /**
+   * @description Преобразовать данные формы в данные события
+   * @param {FormData} formData Данные формы
+   * @return {Object} Объект данных карточки
+   * @memberof DayItemEdit
+   */
   _processForm(formData) {
     const tempEntry = {
       icon: ``,
@@ -339,6 +361,11 @@ export default class DayItemEdit extends Component {
     }
   }
 
+  /**
+   * @description Функция-обработчик переключения
+   * режима избранного события
+   * @memberof DayItemEdit
+   */
   _onChangeFavorite() {
     this._isFavorite = !this._isFavorite;
 

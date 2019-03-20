@@ -62,9 +62,7 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
       Object.assign(item, newData);
 
       componendDayItem.update(item);
-      componendDayItem.render();
-      nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
-      componendDayItemEdit.unrender();
+      switchToView();
     };
     componendDayItemEdit.onReset = switchToView;
 
