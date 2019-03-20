@@ -68,8 +68,8 @@ const generateTripDayItem = () => {
     description: generateDescription(),
     picture: `http://picsum.photos/300/150?r=${Math.random()}`,
     time: {
-      since: `${getRandomInt(6)}:00`,
-      to: `${getRandomInt(12, 7)}:00`
+      since: `${getRandomInt(6)}:${getRandomInt(59, 10)}`,
+      to: `${getRandomInt(12, 7)}:${getRandomInt(59, 10)}`
     },
     price: getRandomInt(30, 10),
     offers: new Set(generateOffers())

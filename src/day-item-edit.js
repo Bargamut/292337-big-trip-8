@@ -1,4 +1,6 @@
 import Component from './component';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
 
 /**
  * @description Класс компонента события маршрута
@@ -171,6 +173,18 @@ export default class DayItemEdit extends Component {
     nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.addEventListener(`reset`, this._onClickReset);
     this._element.querySelector(`.point__favorite`).addEventListener(`click`, this._onChangeFavorite);
+
+    flatpickr(this._element.querySelector(`.point__input[name="time"]`), {
+      mode: `range`,
+      locale: {
+        rangeSeparator: ` — `
+      },
+      enableTime: true,
+      altInput: true,
+      altFormat: `H:i`,
+      dateFormat: `H:i`,
+      time_24hr: true // eslint-disable-line
+    });
   }
 
   /**

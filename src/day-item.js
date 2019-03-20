@@ -1,4 +1,5 @@
 import Component from './component';
+import moment from 'moment';
 
 /**
  * @description Класс компонента события маршрута
@@ -90,7 +91,15 @@ export default class DayItem extends Component {
   }
 
   _countDuration() {
-    return `1h 23m`;
+    const a = moment(this._time.since, `HH:mm`);
+    const b = moment(this._time.to, `HH:mm`);
+    const duration = moment.utc(
+        moment.duration(
+            b.diff(a)
+        ).asMilliseconds()
+    );
+
+    return duration.format(`H[h] m[m]`);
   }
 
   /**
