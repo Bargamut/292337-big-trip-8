@@ -15,18 +15,18 @@ const arrayDescriptionPhrases = [
   `Nunc fermentum tortor ac porta dapibus.`,
   `In rutrum ac purus sit amet tempus.`
 ];
-export const arrayItems = [
-  {icon: `🚌`, group: `cities`, type: `bus`, caption: `Bus to `},
-  {icon: `🚂`, group: `cities`, type: `train`, caption: `Train to `},
-  {icon: `🛳️`, group: `cities`, type: `ship`, caption: `Ship to `},
-  {icon: `🚊`, group: `cities`, type: `transport`, caption: `Transport to `},
-  {icon: `🚗`, group: `cities`, type: `drive`, caption: `Taxi to `},
-  {icon: `✈️`, group: `cities`, type: `flight`, caption: `Flight to `},
-  {icon: `🚕`, group: `places`, type: `taxi`, caption: `Taxi to `},
-  {icon: `🏨`, group: `places`, type: `check-in`, caption: `Check into a `},
-  {icon: `🏛️`, group: `places`, type: `sightseeing`, caption: `Go to `},
-  {icon: `🍴`, group: `places`, type: `restaurant`, caption: `Go to `}
-];
+export const mapItems = new Map([
+  [`bus`, {icon: `🚌`, group: `cities`, caption: `Bus to `}],
+  [`train`, {icon: `🚂`, group: `cities`, caption: `Train to `}],
+  [`ship`, {icon: `🛳️`, group: `cities`, caption: `Ship to `}],
+  [`transport`, {icon: `🚊`, group: `cities`, caption: `Transport to `}],
+  [`drive`, {icon: `🚗`, group: `cities`, caption: `Drive to `}],
+  [`flight`, {icon: `✈️`, group: `cities`, caption: `Flight to `}],
+  [`taxi`, {icon: `🚕`, group: `places`, caption: `Taxi to `}],
+  [`check-in`, {icon: `🏨`, group: `places`, caption: `Check into a `}],
+  [`sightseeing`, {icon: `🏛️`, group: `places`, caption: `Go to `}],
+  [`restaurant`, {icon: `🍴`, group: `places`, caption: `Go to `}]
+]);
 export const mapOffers = new Map([
   [
     `add-luggage`,
@@ -56,14 +56,8 @@ export const mapOffers = new Map([
   ]
 ]);
 
-const arrayOffersTypes = [
-  `add-luggage`,
-  `switch-to-comfort-class`,
-  `add-meal`,
-  `choose-seats`
-];
-
 const generateTripDayItem = () => {
+  const arrayItems = [...mapItems.values()];
   const currentItem = arrayItems[getRandomInt(arrayItems.length)];
   const destinations = mapDestinations.get(currentItem.group);
 
@@ -84,6 +78,7 @@ const generateTripDayItem = () => {
 
 const generateOffers = () => {
   const currentOffers = [];
+  const arrayOffersTypes = [...mapOffers.keys()];
   const countOffers = getRandomInt(3, 1);
 
   while (currentOffers.length !== countOffers) {

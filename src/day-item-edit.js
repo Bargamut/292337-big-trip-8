@@ -30,6 +30,8 @@ export default class DayItemEdit extends Component {
     this._dataItems = dataItems;
     this._dataOffers = dataOffers;
 
+    this._onClickSubmit = this._onClickSubmit.bind(this);
+    this._onClickReset = this._onClickReset.bind(this);
     this._onSubmit = null;
     this._onReset = null;
 
@@ -88,7 +90,7 @@ export default class DayItemEdit extends Component {
             </div>
 
             <div class="paint__favorite-wrap">
-              <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite">
+              <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite" ${this._isFavorite && `checked`}>
               <label class="point__favorite" for="favorite">favorite</label>
             </div>
           </header>
@@ -138,17 +140,20 @@ export default class DayItemEdit extends Component {
   update(data) {
     this._icon = data.icon;
     this._destination = data.destination;
-    // this._caption = data.caption;
-    // this._description = data.description;
-    // this._picture = data.picture;
+    this._caption = data.caption;
     this._time = data.time;
     this._price = data.price;
     this._offers = data.offers;
   }
 
-  static createMapper(target) {
+  createMapper(target) {
     return {
-      'travel-way': (value) => (target.icon = value),
+      'travel-way': (value) => {
+        const dataItem = this._dataItems.get(value);
+
+        target.icon = dataItem.icon;
+        target.caption = dataItem.caption;
+      },
       'destination': (value) => (target.destination = value),
       'time': (value) => ([target.time.since, target.time.to] = value.split(` — `)),
       'price': (value) => (target.price = parseInt(value, 10)),
@@ -163,8 +168,9 @@ export default class DayItemEdit extends Component {
   createListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
 
-    nodeItemForm.addEventListener(`submit`, this._onClickSubmit.bind(this));
-    nodeItemForm.addEventListener(`reset`, this._onClickReset.bind(this));
+    nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
+    nodeItemForm.addEventListener(`reset`, this._onClickReset);
+    this._element.querySelector(`.point__favorite`).addEventListener(`click`, this._onChangeFavorite);
   }
 
   /**
@@ -176,8 +182,13 @@ export default class DayItemEdit extends Component {
 
     nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.removeEventListener(`reset`, this._onClickReset);
+    this._element.querySelector(`.point__favorite`).removeEventListener(`click`, this._onChangeFavorite);
 
     this._nodeItemForm = null;
+  }
+
+  _partialUpdate() {
+    this._element.innerHTML = this.template.content.cloneNode(true).firstChild.innerHTML;
   }
 
   /**
@@ -208,15 +219,15 @@ export default class DayItemEdit extends Component {
     let template = ``;
     let travelWayGroups = {};
 
-    for (let item of this._dataItems) {
+    this._dataItems.forEach((item, itemType) => {
       if (typeof travelWayGroups[item.group] === `undefined`) {
         travelWayGroups[item.group] = ``;
       }
 
       travelWayGroups[item.group] +=
-        `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${item.type}" name="travel-way" value="${item.type}" ${ item.icon === this._icon && `checked`}>
-        <label class="travel-way__select-label" for="travel-way-${item.type}">${item.icon} ${item.type}</label>`;
-    }
+        `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${itemType}" name="travel-way" value="${itemType}" ${ item.icon === this._icon && `checked`}>
+        <label class="travel-way__select-label" for="travel-way-${itemType}">${item.icon} ${itemType}</label>`;
+    });
 
     Object.values(travelWayGroups).forEach(function (templatePart) {
       template +=
@@ -270,7 +281,7 @@ export default class DayItemEdit extends Component {
       offers: new Set()
     };
 
-    const itemEditMapper = DayItemEdit.createMapper(tempEntry);
+    const itemEditMapper = this.createMapper(tempEntry);
 
     for (const [property, value] of formData.entries()) {
       if (itemEditMapper[property]) {
@@ -314,5 +325,11 @@ export default class DayItemEdit extends Component {
     }
   }
 
-  _onChangeFavorite() {}
+  _onChangeFavorite() {
+    this._isFavorite = !this._isFavorite;
+
+    this.removeListeners();
+    this._partialUpdate();
+    this.createListeners();
+  }
 }

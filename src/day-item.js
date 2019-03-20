@@ -24,6 +24,7 @@ export default class DayItem extends Component {
 
     this._dataOffers = dataOffers;
 
+    this._onClickEdit = this._onClickEdit.bind(this);
     this._onEdit = null;
   }
 
@@ -66,9 +67,7 @@ export default class DayItem extends Component {
   update(data) {
     this._icon = data.icon;
     this._destination = data.destination;
-    // this._caption = data.caption;
-    // this._description = data.description;
-    // this._picture = data.picture;
+    this._caption = data.caption;
     this._time = data.time;
     this._price = data.price;
     this._offers = data.offers;
@@ -79,7 +78,7 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   createListeners() {
-    this._element.addEventListener(`click`, this._onClickEdit.bind(this));
+    this._element.addEventListener(`click`, this._onClickEdit);
   }
 
   /**
