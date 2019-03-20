@@ -58,7 +58,14 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
       componendDayItemEdit.unrender();
     };
 
-    componendDayItemEdit.onSubmit = switchToView;
+    componendDayItemEdit.onSubmit = (newData) => {
+      Object.assign(item, newData);
+
+      componendDayItem.update(item);
+      componendDayItem.render();
+      nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
+      componendDayItemEdit.unrender();
+    };
     componendDayItemEdit.onReset = switchToView;
 
     docFragmentTripDayItems.appendChild(

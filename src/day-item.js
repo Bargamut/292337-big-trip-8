@@ -63,6 +63,17 @@ export default class DayItem extends Component {
     this._onEdit = callback;
   }
 
+  update(data) {
+    this._icon = data.icon;
+    this._destination = data.destination;
+    // this._caption = data.caption;
+    // this._description = data.description;
+    // this._picture = data.picture;
+    this._time = data.time;
+    this._price = data.price;
+    this._offers = data.offers;
+  }
+
   /**
    * @description Централизованная установка обработчиков событий
    * @memberof DayItem

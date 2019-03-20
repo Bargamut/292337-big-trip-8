@@ -18,7 +18,6 @@ export default class DayItemEdit extends Component {
   constructor(item, dataDestinations, dataItems, dataOffers) {
     super();
     this._icon = item.icon;
-    this._title = item.title;
     this._destination = item.destination;
     this._caption = item.caption;
     this._description = item.description;
@@ -33,6 +32,10 @@ export default class DayItemEdit extends Component {
 
     this._onSubmit = null;
     this._onReset = null;
+
+    this._isFavorite = false;
+
+    this._onChangeFavorite = this._onChangeFavorite.bind(this);
   }
 
   /**
@@ -132,17 +135,24 @@ export default class DayItemEdit extends Component {
     this._onReset = callback;
   }
 
+  update(data) {
+    this._icon = data.icon;
+    this._destination = data.destination;
+    // this._caption = data.caption;
+    // this._description = data.description;
+    // this._picture = data.picture;
+    this._time = data.time;
+    this._price = data.price;
+    this._offers = data.offers;
+  }
+
   static createMapper(target) {
     return {
-      destination: (value) => (target.destination = value),
-      time: (value) => {
-        const schedule = {since: ``, to: ``};
-
-        [schedule.since, schedule.to] = value.split(` — `);
-
-        return schedule;
-      },
-      offer: (value) => target.offers.push(value)
+      'travel-way': (value) => (target.icon = value),
+      'destination': (value) => (target.destination = value),
+      'time': (value) => ([target.time.since, target.time.to] = value.split(` — `)),
+      'price': (value) => (target.price = parseInt(value, 10)),
+      'offer': (value) => target.offers.add(value)
     };
   }
 
@@ -252,39 +262,12 @@ export default class DayItemEdit extends Component {
       icon: ``,
       destination: ``,
       caption: ``,
-      description: ``,
-      picture: ``,
       time: {
         since: ``,
         to: ``
       },
       price: 0,
-      offers: [
-        {
-          type: `add-luggage`,
-          caption: `Add luggage`,
-          price: 30,
-          isChecked: false
-        },
-        {
-          type: `switch-to-comfort-class`,
-          caption: `Switch to comfort class`,
-          price: 100,
-          isChecked: false
-        },
-        {
-          type: `add-meal`,
-          caption: `Add meal`,
-          price: 15,
-          isChecked: false
-        },
-        {
-          type: `choose-seats`,
-          caption: `Choose seats`,
-          price: 5,
-          isChecked: false
-        }
-      ]
+      offers: new Set()
     };
 
     const itemEditMapper = DayItemEdit.createMapper(tempEntry);
@@ -294,6 +277,8 @@ export default class DayItemEdit extends Component {
         itemEditMapper[property](value);
       }
     }
+
+    return tempEntry;
   }
 
   /**
@@ -328,4 +313,6 @@ export default class DayItemEdit extends Component {
       this._onReset();
     }
   }
+
+  _onChangeFavorite() {}
 }
