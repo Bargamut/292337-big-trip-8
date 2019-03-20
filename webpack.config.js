@@ -11,5 +11,13 @@ module.exports = {
   devServer: {
     contentBase: path.join(__dirname, `public`), // eslint-disable-line
     publicPath: `http://localhost:8080/`
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [`style-loader`, `css-loader`]
+      }
+    ]
   }
 };

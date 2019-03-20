@@ -1,4 +1,3 @@
-const CURRENT_CURRENCY = `&euro;`;
 export const mapDestinations = new Map([
   [`places`, [`airport`, `hotel`, `sightseeing`, `restaurant`]],
   [`cities`, [`Amsterdam`, `Geneva`, `Chamonix`]]
@@ -16,20 +15,49 @@ const arrayDescriptionPhrases = [
   `Nunc fermentum tortor ac porta dapibus.`,
   `In rutrum ac purus sit amet tempus.`
 ];
-export const arrayItems = [
-  {icon: `🚌`, group: `cities`, type: `bus`, caption: `Bus to `},
-  {icon: `🚂`, group: `cities`, type: `train`, caption: `Train to `},
-  {icon: `🛳️`, group: `cities`, type: `ship`, caption: `Ship to `},
-  {icon: `🚊`, group: `cities`, type: `transport`, caption: `Transport to `},
-  {icon: `🚗`, group: `cities`, type: `drive`, caption: `Taxi to `},
-  {icon: `✈️`, group: `cities`, type: `flight`, caption: `Flight to `},
-  {icon: `🚕`, group: `places`, type: `taxi`, caption: `Taxi to `},
-  {icon: `🏨`, group: `places`, type: `check-in`, caption: `Check into a `},
-  {icon: `🏛️`, group: `places`, type: `sightseeing`, caption: `Go to `},
-  {icon: `🍴`, group: `places`, type: `restaurant`, caption: `Go to `}
-];
+export const mapItems = new Map([
+  [`bus`, {icon: `🚌`, group: `cities`, caption: `Bus to `}],
+  [`train`, {icon: `🚂`, group: `cities`, caption: `Train to `}],
+  [`ship`, {icon: `🛳️`, group: `cities`, caption: `Ship to `}],
+  [`transport`, {icon: `🚊`, group: `cities`, caption: `Transport to `}],
+  [`drive`, {icon: `🚗`, group: `cities`, caption: `Drive to `}],
+  [`flight`, {icon: `✈️`, group: `cities`, caption: `Flight to `}],
+  [`taxi`, {icon: `🚕`, group: `places`, caption: `Taxi to `}],
+  [`check-in`, {icon: `🏨`, group: `places`, caption: `Check into a `}],
+  [`sightseeing`, {icon: `🏛️`, group: `places`, caption: `Go to `}],
+  [`restaurant`, {icon: `🍴`, group: `places`, caption: `Go to `}]
+]);
+export const mapOffers = new Map([
+  [
+    `add-luggage`,
+    {
+      caption: `Add luggage`,
+      price: 30
+    }
+  ], [
+    `switch-to-comfort-class`,
+    {
+      caption: `Switch to comfort class`,
+      price: 100
+    }
+  ], [
+    `add-meal`,
+    {
+      caption: `Add meal`,
+      price: 15
+    }
+  ],
+  [
+    `choose-seats`,
+    {
+      caption: `Choose seats`,
+      price: 5
+    }
+  ]
+]);
 
 const generateTripDayItem = () => {
+  const arrayItems = [...mapItems.values()];
   const currentItem = arrayItems[getRandomInt(arrayItems.length)];
   const destinations = mapDestinations.get(currentItem.group);
 
@@ -39,44 +67,25 @@ const generateTripDayItem = () => {
     caption: currentItem.caption,
     description: generateDescription(),
     picture: `http://picsum.photos/300/150?r=${Math.random()}`,
-    schedule: {
-      timetable: {
-        since: `${getRandomInt(6)}:00`,
-        to: `${getRandomInt(12, 7)}:00`
-      },
-      duration: `${getRandomInt(12)}h ${getRandomInt(59, 20)}m`,
+    time: {
+      since: `${getRandomInt(6)}:${getRandomInt(59, 10)}`,
+      to: `${getRandomInt(12, 7)}:${getRandomInt(59, 10)}`
     },
-    price: {
-      currency: CURRENT_CURRENCY,
-      value: getRandomInt(30, 10)
-    },
-    offers: [
-      {
-        type: `add-luggage`,
-        caption: `Add luggage`,
-        price: {currency: CURRENT_CURRENCY, value: 30},
-        isChecked: Math.random() > 0.5
-      },
-      {
-        type: `switch-to-comfort-class`,
-        caption: `Switch to comfort class`,
-        price: {currency: CURRENT_CURRENCY, value: 100},
-        isChecked: Math.random() > 0.5
-      },
-      {
-        type: `add-meal`,
-        caption: `Add meal`,
-        price: {currency: CURRENT_CURRENCY, value: 15},
-        isChecked: Math.random() > 0.5
-      },
-      {
-        type: `choose-seats`,
-        caption: `Choose seats`,
-        price: {currency: CURRENT_CURRENCY, value: 5},
-        isChecked: Math.random() > 0.5
-      }
-    ]
+    price: getRandomInt(30, 10),
+    offers: new Set(generateOffers())
   };
+};
+
+const generateOffers = () => {
+  const currentOffers = [];
+  const arrayOffersTypes = [...mapOffers.keys()];
+  const countOffers = getRandomInt(3, 1);
+
+  while (currentOffers.length !== countOffers) {
+    currentOffers.push(arrayOffersTypes[getRandomInt(arrayOffersTypes.length)]);
+  }
+
+  return currentOffers;
 };
 
 const generateDescription = () => {

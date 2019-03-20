@@ -1,7 +1,7 @@
 import makeFilter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
-import generateTripDayItem, {pointsFilters, mapDestinations, arrayItems} from './make-data';
+import generateTripDayItem, {pointsFilters, mapDestinations, mapItems, mapOffers} from './make-data';
 
 const currentTripDayItems = [];
 
@@ -43,8 +43,8 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
   const docFragmentTripDayItems = document.createDocumentFragment();
 
   for (let item of dayItems) {
-    const componendDayItem = new DayItem(item);
-    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, arrayItems);
+    const componendDayItem = new DayItem(item, mapOffers);
+    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItems, mapOffers);
 
     componendDayItem.onEdit = () => {
       componendDayItemEdit.render();
@@ -58,7 +58,12 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
       componendDayItemEdit.unrender();
     };
 
-    componendDayItemEdit.onSubmit = switchToView;
+    componendDayItemEdit.onSubmit = (newData) => {
+      Object.assign(item, newData);
+
+      componendDayItem.update(item);
+      switchToView();
+    };
     componendDayItemEdit.onReset = switchToView;
 
     docFragmentTripDayItems.appendChild(

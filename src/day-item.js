@@ -1,4 +1,5 @@
 import Component from './component';
+import moment from 'moment';
 
 /**
  * @description Класс компонента события маршрута
@@ -10,17 +11,21 @@ export default class DayItem extends Component {
   /**
    * @description Конструктор класса DayItem
    * @param {Object} tripDayItem Объект описания события маршрута
+   * @param {Map} dataOffers Map описания заказов при событии маршрута
    * @memberof DayItem
    */
-  constructor(tripDayItem) {
+  constructor(tripDayItem, dataOffers) {
     super();
     this._icon = tripDayItem.icon;
     this._caption = tripDayItem.caption;
     this._destination = tripDayItem.destination;
-    this._schedule = tripDayItem.schedule;
+    this._time = tripDayItem.time;
     this._price = tripDayItem.price;
     this._offers = tripDayItem.offers;
 
+    this._dataOffers = dataOffers;
+
+    this._onClickEdit = this._onClickEdit.bind(this);
     this._onEdit = null;
   }
 
@@ -39,11 +44,11 @@ export default class DayItem extends Component {
         <h3 class="trip-point__title">${this._caption} ${this._destination}</h3>
 
         <p class="trip-point__schedule">
-          <span class="trip-point__timetable">${this._schedule.timetable.since} — ${this._schedule.timetable.to}</span>
-          <span class="trip-point__duration">${this._schedule.duration}</span>
+          <span class="trip-point__timetable">${this._time.since} — ${this._time.to}</span>
+          <span class="trip-point__duration">${this._countDuration()}</span>
         </p>
 
-        <p class="trip-point__price">${this._price.currency}&nbsp;${this._price.value}</p>
+        <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
 
         <ul class="trip-point__offers">${this._getTripOffersTemplate()}</ul>
       </article>`;
@@ -61,11 +66,25 @@ export default class DayItem extends Component {
   }
 
   /**
+   * @description Обновить данные компонента
+   * @param {Object} data Объект данных, описывающих событие
+   * @memberof DayItem
+   */
+  update(data) {
+    this._icon = data.icon;
+    this._destination = data.destination;
+    this._caption = data.caption;
+    this._time = data.time;
+    this._price = data.price;
+    this._offers = data.offers;
+  }
+
+  /**
    * @description Централизованная установка обработчиков событий
    * @memberof DayItem
    */
   createListeners() {
-    this._element.addEventListener(`click`, this._onClickEdit.bind(this));
+    this._element.addEventListener(`click`, this._onClickEdit);
   }
 
   /**
@@ -76,6 +95,18 @@ export default class DayItem extends Component {
     this._element.removeEventListener(`click`, this._onClickEdit);
   }
 
+  _countDuration() {
+    const a = moment(this._time.since, `HH:mm`);
+    const b = moment(this._time.to, `HH:mm`);
+    const duration = moment.utc(
+        moment.duration(
+            b.diff(a)
+        ).asMilliseconds()
+    );
+
+    return duration.format(`H[h] m[m]`);
+  }
+
   /**
    * @description Создание шаблона заказов при событии маршрута
    * @return {String} Шаблон набора заказов при событии маршрута
@@ -84,13 +115,13 @@ export default class DayItem extends Component {
   _getTripOffersTemplate() {
     let template = ``;
 
-    this._offers.forEach((offer) => {
-      if (offer.isChecked) {
-        template +=
+    this._offers.forEach((offerType) => {
+      const offer = this._dataOffers.get(offerType);
+
+      template +=
           `<li>
-            <button class="trip-point__offer">${offer.caption} +${offer.price.currency}&nbsp;${offer.price.value}</button>
+            <button class="trip-point__offer">${offer.caption} +&euro;&nbsp;${offer.price}</button>
           </li>`;
-      }
     });
 
     return template;

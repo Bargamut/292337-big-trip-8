@@ -13,14 +13,7 @@ export default class Component {
     }
 
     this._element = null;
-  }
-
-  /**
-   * @description Геттер шаблона
-   * @memberof Component
-   */
-  get template() {
-    throw new Error(`You have to define template`);
+    this._state = {};
   }
 
   /**
@@ -30,6 +23,14 @@ export default class Component {
    */
   get element() {
     return this._element;
+  }
+
+  /**
+   * @description Геттер шаблона
+   * @memberof Component
+   */
+  get template() {
+    throw new Error(`You have to define template`);
   }
 
   /**
@@ -54,6 +55,12 @@ export default class Component {
 
     this._element = null;
   }
+
+  /**
+   * @description Обновить данные компонента
+   * @memberof Component
+   */
+  update() {}
 
   /**
    * @description Централизованная установка обработчиков событий
