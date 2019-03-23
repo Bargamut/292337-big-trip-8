@@ -1,16 +1,9 @@
 import makeFilter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
-import generateTripDayItem, {pointsFilters, mapDestinations, mapItems, mapOffers} from './make-data';
-
-const currentTripDayItems = [];
+import currentTripDayItems, {pointsFilters, mapDestinations, mapItemsTypes, mapOffers} from './make-data';
 
 document.addEventListener(`DOMContentLoaded`, () => {
-  // Набираем 7 элементов
-  while (currentTripDayItems.length < 7) {
-    currentTripDayItems.push(generateTripDayItem());
-  }
-
   renderFilters(document.querySelector(`.trip-filter`), pointsFilters);
   renderTripDayItems(document.querySelector(`.trip-day__items`), currentTripDayItems);
 });
@@ -20,7 +13,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
  * @param {Node} nodeFiltersBar DOM-элемент блока фильтров
  * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
  */
-const renderFilters = function (nodeFiltersBar, tripPointsFilters = []) {
+const renderFilters = (nodeFiltersBar, tripPointsFilters = []) => {
   const docFragmentFilters = document.createDocumentFragment();
 
   tripPointsFilters.forEach((objTripFilter) => {
@@ -34,17 +27,21 @@ const renderFilters = function (nodeFiltersBar, tripPointsFilters = []) {
   nodeFiltersBar.addEventListener(`click`, onFilterClick);
 };
 
+const deleteDayItem = (items, index) => {
+  items[index] = null;
+};
+
 /**
  * @description Отрисовка списка событий маршрута
  * @param {Node} nodeTripDayItems DOM-элемент блока событий маршрута
  * @param {Array} [dayItems=[]] Массив событий маршрута
  */
-const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
+const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
   const docFragmentTripDayItems = document.createDocumentFragment();
 
-  for (let item of dayItems) {
+  dayItems.forEach((item, index) => {
     const componendDayItem = new DayItem(item, mapOffers);
-    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItems, mapOffers);
+    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
 
     componendDayItem.onEdit = () => {
       componendDayItemEdit.render();
@@ -64,12 +61,19 @@ const renderTripDayItems = function (nodeTripDayItems, dayItems = []) {
       componendDayItem.update(item);
       switchToView();
     };
-    componendDayItemEdit.onReset = switchToView;
+
+    componendDayItemEdit.onDelete = () => {
+      deleteDayItem(dayItems, index);
+
+      nodeTripDayItems.removeChild(componendDayItemEdit.element);
+
+      componendDayItemEdit.unrender();
+    };
 
     docFragmentTripDayItems.appendChild(
         componendDayItem.render()
     );
-  }
+  });
 
   nodeTripDayItems.innerHTML = ``;
   nodeTripDayItems.appendChild(docFragmentTripDayItems);

@@ -13,11 +13,11 @@ export default class DayItemEdit extends Component {
    * @description Конструктор класса DayItemEdit
    * @param {Object} item Объект описания события маршрута
    * @param {Map} dataDestinations Map описания пунктов прибытия
-   * @param {Array} dataItems Массив описания событий маршрута
+   * @param {Array} dataItemsTypes Массив описания событий маршрута
    * @param {Map} dataOffers Map описания заказов при событии маршрута
    * @memberof DayItemEdit
    */
-  constructor(item, dataDestinations, dataItems, dataOffers) {
+  constructor(item, dataDestinations, dataItemsTypes, dataOffers) {
     super();
     this._icon = item.icon;
     this._destination = item.destination;
@@ -29,13 +29,13 @@ export default class DayItemEdit extends Component {
     this._offers = item.offers;
 
     this._destinations = dataDestinations;
-    this._dataItems = dataItems;
+    this._dataItems = dataItemsTypes;
     this._dataOffers = dataOffers;
 
     this._onClickSubmit = this._onClickSubmit.bind(this);
-    this._onClickReset = this._onClickReset.bind(this);
+    this._onClickDelete = this._onClickDelete.bind(this);
     this._onSubmit = null;
-    this._onReset = null;
+    this._onDelete = null;
 
     this._isFavorite = false;
 
@@ -131,12 +131,12 @@ export default class DayItemEdit extends Component {
   }
 
   /**
-   * @description Сеттер установки функции-обработчика по событию reset
-   * @param {Function} callback Функцияобработчик события
+   * @description Сеттер функции-обработчика удаления события маршрута
+   * @param {Function} callback Функция-обработчик
    * @memberof DayItemEdit
    */
-  set onReset(callback) {
-    this._onReset = callback;
+  set onDelete(callback) {
+    this._onDelete = callback;
   }
 
   /**
@@ -183,7 +183,7 @@ export default class DayItemEdit extends Component {
     const nodeItemForm = this._element.querySelector(`form`);
 
     nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
-    nodeItemForm.addEventListener(`reset`, this._onClickReset);
+    nodeItemForm.addEventListener(`reset`, this._onClickDelete);
     this._element.querySelector(`.point__favorite`).addEventListener(`click`, this._onChangeFavorite);
 
     flatpickr(this._element.querySelector(`.point__input[name="time"]`), {
@@ -207,7 +207,7 @@ export default class DayItemEdit extends Component {
     const nodeItemForm = this._element.querySelector(`form`);
 
     nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
-    nodeItemForm.removeEventListener(`reset`, this._onClickReset);
+    nodeItemForm.removeEventListener(`reset`, this._onClickDelete);
     this._element.querySelector(`.point__favorite`).removeEventListener(`click`, this._onChangeFavorite);
 
     this._nodeItemForm = null;
@@ -349,15 +349,15 @@ export default class DayItemEdit extends Component {
   }
 
   /**
-   * @description Обработчик события сброса значений формы
+   * @description Обработчик удаления события маршрута
    * @param {Event} evt - объект события
    * @memberof DayItemEdit
    */
-  _onClickReset(evt) {
+  _onClickDelete(evt) {
     evt.preventDefault();
 
-    if (this._onReset instanceof Function) {
-      this._onReset();
+    if (this._onDelete instanceof Function) {
+      this._onDelete();
     }
   }
 
