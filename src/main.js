@@ -1,34 +1,70 @@
-import makeFilter from './make-filter';
+import moment from 'moment';
+import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
-import currentTripDayItems, {pointsFilters, mapDestinations, mapItemsTypes, mapOffers} from './make-data';
+import currentDayItems, {
+  pointsFilters,
+  mapDestinations,
+  mapItemsTypes,
+  mapOffers
+} from './make-data';
 
 document.addEventListener(`DOMContentLoaded`, () => {
-  renderFilters(document.querySelector(`.trip-filter`), pointsFilters);
-  renderTripDayItems(document.querySelector(`.trip-day__items`), currentTripDayItems);
+  const nodeDayItemsBoard = document.querySelector(`.trip-day__items`);
+
+  renderFilters(document.querySelector(`.trip-filter`), pointsFilters, nodeDayItemsBoard);
+  renderTripDayItems(nodeDayItemsBoard, currentDayItems);
 });
 
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
  * @param {Node} nodeFiltersBar DOM-элемент блока фильтров
  * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
+ * @param {Node} [nodeDayItemsBoard] DOM-элемент блока событий маршрута
  */
-const renderFilters = (nodeFiltersBar, tripPointsFilters = []) => {
+const renderFilters = (nodeFiltersBar, tripPointsFilters = [], nodeDayItemsBoard) => {
   const docFragmentFilters = document.createDocumentFragment();
 
-  tripPointsFilters.forEach((objTripFilter) => {
-    docFragmentFilters.appendChild(
-        makeFilter(objTripFilter).content.cloneNode(true)
-    );
+  tripPointsFilters.forEach((filter) => {
+    const componentFilter = new Filter(filter);
+
+    componentFilter.onClick = () => {
+      const filteredDayItems = filterDayItems(currentDayItems, filter.id);
+
+      renderTripDayItems(nodeDayItemsBoard, filteredDayItems);
+    };
+
+    componentFilter.render();
+
+    docFragmentFilters.appendChild(componentFilter.element);
   });
 
   nodeFiltersBar.innerHTML = ``;
   nodeFiltersBar.appendChild(docFragmentFilters);
-  nodeFiltersBar.addEventListener(`click`, onFilterClick);
 };
 
-const deleteDayItem = (items, index) => {
-  items[index] = null;
+/**
+ * @description Удаление события маршрута
+ * @param {Array} items Массив событий
+ * @param {Number} index Индекс удаляемого события
+ */
+const deleteDayItem = (dayItems, index) => {
+  dayItems[index] = null;
+};
+
+/**
+ * @description Отфильтровать события маршрута
+ * @param {Array} dayItems События маршрута
+ * @param {String} filterId ID фильтра
+ * @return {Array} Отфильтрованный массив событий маршрута
+ */
+const filterDayItems = (dayItems, filterId) => {
+  switch (filterId) {
+    case `future`: return dayItems.filter((item) => moment(item.time.since, `HH:mm`).valueOf() > Date.now());
+    case `past`: return dayItems.filter((item) => moment(item.time.to, `HH:mm`).valueOf() < Date.now());
+    case `everything`:
+    default: return dayItems;
+  }
 };
 
 /**
@@ -71,30 +107,10 @@ const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
     };
 
     docFragmentTripDayItems.appendChild(
-        componendDayItem.render()
+      componendDayItem.render()
     );
   });
 
   nodeTripDayItems.innerHTML = ``;
   nodeTripDayItems.appendChild(docFragmentTripDayItems);
-};
-
-/**
- * @description Обработчик клика по фильтру событий
- * @param {Event} evt Объект события, передаваемый в callback
- */
-const onFilterClick = (evt) => {
-  const nodeTarget = evt.target;
-  const randNumPoints = Math.floor(Math.random() * (20 - 1)) + 1;
-  const currentTripPoints = [];
-
-  if (!nodeTarget.classList.contains(`trip-filter__item`)) {
-    return;
-  }
-
-  for (let i = 0; ++i <= randNumPoints;) {
-    currentTripPoints.push(generateTripDayItem());
-  }
-
-  renderTripDayItems(document.querySelector(`.trip-day__items`), currentTripPoints);
 };
