@@ -23,24 +23,17 @@ document.addEventListener(`DOMContentLoaded`, () => {
  * @param {Node} [nodeDayItemsBoard] DOM-элемент блока событий маршрута
  */
 const renderFilters = (nodeFiltersBar, tripPointsFilters = [], nodeDayItemsBoard) => {
-  const docFragmentFilters = document.createDocumentFragment();
+  const componentFilter = new Filter(tripPointsFilters);
 
-  tripPointsFilters.forEach((filter) => {
-    const componentFilter = new Filter(filter);
+  componentFilter.onClick = (evt) => {
+    const filteredDayItems = filterDayItems(currentDayItems, evt.target.id);
 
-    componentFilter.onClick = () => {
-      const filteredDayItems = filterDayItems(currentDayItems, filter.id);
+    renderTripDayItems(nodeDayItemsBoard, filteredDayItems);
+  };
 
-      renderTripDayItems(nodeDayItemsBoard, filteredDayItems);
-    };
+  componentFilter.render();
 
-    componentFilter.render();
-
-    docFragmentFilters.appendChild(componentFilter.element);
-  });
-
-  nodeFiltersBar.innerHTML = ``;
-  nodeFiltersBar.appendChild(docFragmentFilters);
+  nodeFiltersBar.parentNode.replaceChild(componentFilter.element, nodeFiltersBar);
 };
 
 /**
@@ -60,9 +53,9 @@ const deleteDayItem = (dayItems, index) => {
  */
 const filterDayItems = (dayItems, filterId) => {
   switch (filterId) {
-    case `future`: return dayItems.filter((item) => moment(item.time.since, `HH:mm`).valueOf() > Date.now());
-    case `past`: return dayItems.filter((item) => moment(item.time.to, `HH:mm`).valueOf() < Date.now());
-    case `everything`:
+    case `filter-future`: return dayItems.filter((item) => item !== null && moment(item.time.since, `HH:mm`).valueOf() > Date.now());
+    case `filter-past`: return dayItems.filter((item) => item !== null && moment(item.time.to, `HH:mm`).valueOf() < Date.now());
+    case `filter-everything`:
     default: return dayItems;
   }
 };
@@ -76,6 +69,10 @@ const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
   const docFragmentTripDayItems = document.createDocumentFragment();
 
   dayItems.forEach((item, index) => {
+    if (item === null) {
+      return;
+    }
+
     const componendDayItem = new DayItem(item, mapOffers);
     const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
 
@@ -99,7 +96,7 @@ const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
     };
 
     componendDayItemEdit.onDelete = () => {
-      deleteDayItem(dayItems, index);
+      deleteDayItem(currentDayItems, index);
 
       nodeTripDayItems.removeChild(componendDayItemEdit.element);
 
@@ -107,7 +104,7 @@ const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
     };
 
     docFragmentTripDayItems.appendChild(
-      componendDayItem.render()
+        componendDayItem.render()
     );
   });
 

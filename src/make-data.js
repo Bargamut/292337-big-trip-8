@@ -130,4 +130,6 @@ const generateDescription = () => {
 
 const getRandomInt = (max, min = 0) => Math.floor(Math.random() * (max - min)) + min;
 
-export default generateTripDayItems();
+const dayIitems = generateTripDayItems();
+
+export default dayIitems;

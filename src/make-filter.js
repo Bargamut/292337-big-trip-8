@@ -15,14 +15,10 @@ export default class Filter extends Component {
    * @param {String} filter.value Значение фильтра
    * @memberof Filter
    */
-  constructor(filter) {
+  constructor(filters) {
     super();
 
-    this._id = filter.id;
-    this._caption = filter.caption;
-    this._value = filter.value;
-
-    this._state.isChecked = filter.isChecked || false;
+    this._filters = filters;
 
     this._onFilterClick = this._onFilterClick.bind(this);
     this._onClick = null;
@@ -46,12 +42,23 @@ export default class Filter extends Component {
     const nodeFilterTemplate = document.createElement(`template`);
 
     nodeFilterTemplate.innerHTML =
-      `<div style="display: inline-block;">
-        <input type="radio" id="filter-${this._id}" name="filter" value="${this._value}" ${this._state.isChecked ? `checked` : ``}>
-        <label class="trip-filter__item" for="filter-${this._id}">${this._caption}</label>
-      </div>`;
+      `<form class="trip-filter">
+        ${this._generateFiltersTemplate()}
+      </form>`;
 
     return nodeFilterTemplate;
+  }
+
+  _generateFiltersTemplate() {
+    let templates = ``;
+
+    this._filters.forEach((filter) => {
+      templates +=
+        `<input type="radio" id="filter-${filter.id}" name="filter" value="${filter.value}" ${filter.isChecked ? `checked` : ``}>
+        <label class="trip-filter__item" for="filter-${filter.id}">${filter.caption}</label>`;
+    });
+
+    return templates;
   }
 
   /**
@@ -59,7 +66,7 @@ export default class Filter extends Component {
    * @memberof Filter
    */
   createListeners() {
-    this._element.addEventListener(`click`, this._onFilterClick);
+    this._element.addEventListener(`change`, this._onFilterClick);
   }
 
   /**
