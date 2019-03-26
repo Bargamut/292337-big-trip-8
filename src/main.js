@@ -53,8 +53,16 @@ const deleteDayItem = (dayItems, index) => {
  */
 const filterDayItems = (dayItems, filterId) => {
   switch (filterId) {
-    case `filter-future`: return dayItems.filter((item) => item !== null && moment(item.time.since, `HH:mm`).valueOf() > Date.now());
-    case `filter-past`: return dayItems.filter((item) => item !== null && moment(item.time.to, `HH:mm`).valueOf() < Date.now());
+    case `filter-future`:
+      return dayItems.filter((item) =>
+        item !== null &&
+        moment(item.time.since, `HH:mm`).valueOf() > Date.now()
+      );
+    case `filter-past`:
+      return dayItems.filter((item) =>
+        item !== null &&
+        moment(item.time.to, `HH:mm`).valueOf() < Date.now()
+      );
     case `filter-everything`:
     default: return dayItems;
   }
