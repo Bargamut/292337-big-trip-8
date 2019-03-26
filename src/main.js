@@ -8,6 +8,7 @@ import currentDayItems, {
   mapItemsTypes,
   mapOffers
 } from './make-data';
+import './stat';
 
 document.addEventListener(`DOMContentLoaded`, () => {
   const nodeDayItemsBoard = document.querySelector(`.trip-day__items`);
