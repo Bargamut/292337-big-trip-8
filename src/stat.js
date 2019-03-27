@@ -171,16 +171,28 @@ document.addEventListener(`DOMContentLoaded`, () => {
       nodeTable.classList.remove(`visually-hidden`);
       nodeStats.classList.add(`visually-hidden`);
     }
+
+    return false;
   });
 
   renderCharts();
   updateComponents();
 });
 
+/**
+ * @description Отфильтровать события маршрута
+ * @param {Array} dayItems Массив данных событий маршрута
+ * @return {Array} Отфильтрованный массив событий маршрута
+ */
 const filterDayItems = (dayItems) => {
   return dayItems;
 };
 
+/**
+ * @description Проверить, является ли тип события транспортом
+ * @param {String} type Тип точки маршрута
+ * @return {Boolean}
+ */
 const isTransport = (type) => {
   return ![`check-in`, `sightseeing`, `restaurant`].includes(type);
 };

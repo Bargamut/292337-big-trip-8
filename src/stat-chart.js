@@ -1,8 +1,16 @@
 import Component from './component';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js';
 
 export default class StatChart extends Component {
+  /**
+   * Конструктор класса StateChart
+   * @param {Object} chart Объект данных для графика
+   * @param {Object} chart.conf Конфиг графика
+   * @param {String} chart.type Тип данных для графика
+   * @param {Number} chart.width Ширина графика
+   * @param {Number} chart.height Высота графика
+   * @memberof StatChart
+   */
   constructor(chart) {
     super();
 
@@ -17,6 +25,12 @@ export default class StatChart extends Component {
     this._chart = null;
   }
 
+  /**
+   * @description Возвращаем шаблон компонента графика
+   * @readonly
+   * @memberof StatChart
+   * @return {Node} DOM-элемент <template> графика
+   */
   get template() {
     const nodeChartTemplate = document.createElement(`template`);
 
