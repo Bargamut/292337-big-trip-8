@@ -39,7 +39,7 @@ const renderFilters = (nodeFiltersBar, tripPointsFilters = [], nodeDayItemsBoard
 
 /**
  * @description Удаление события маршрута
- * @param {Array} items Массив событий
+ * @param {Array} dayItems Массив событий
  * @param {Number} index Индекс удаляемого события
  */
 const deleteDayItem = (dayItems, index) => {

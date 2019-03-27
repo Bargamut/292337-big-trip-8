@@ -9,10 +9,7 @@ import Component from "./component";
 export default class Filter extends Component {
   /**
    * Конструктор класса компонета фильтра
-   * @param {Object} filter Объект данных фильтра
-   * @param {String} filter.id ID фильтра
-   * @param {String} filter.caption Наименование фильтра
-   * @param {String} filter.value Значение фильтра
+   * @param {Array} filters Массив данных фильтров
    * @memberof Filter
    */
   constructor(filters) {
