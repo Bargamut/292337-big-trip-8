@@ -149,6 +149,10 @@ document.addEventListener(`DOMContentLoaded`, () => {
   const nodeStats = document.querySelector(`#stats`);
 
   document.querySelector(`.view-switch`).addEventListener(`click`, (evt) => {
+    if (!evt.target.classList.contains(`view-switch__item`)) {
+      return false;
+    }
+
     evt.preventDefault();
 
     const viewType = evt.target.getAttribute(`href`);
