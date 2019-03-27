@@ -27,11 +27,11 @@ export default class StatChart extends Component {
 
   /**
    * @description Обновление графика
-   * @param {Array} tasks Массив задач
+   * @param {Array} dayItems Массив событий маршрута
    * @memberof StatChart
    */
-  update(tasks) {
-    const processedData = this._processTasks(tasks);
+  update(dayItems) {
+    const processedData = this._processDayItems(dayItems);
 
     this._chart.data.labels = [...processedData.keys()].map((elem) => `${elem}`);
     this._chart.data.datasets = [{
@@ -92,13 +92,13 @@ export default class StatChart extends Component {
    * @return {Map} Преобразованные данные для графика
    * @memberof StatChart
    */
-  _processTasks(dataDayItems) {
+  _processDayItems(dataDayItems) {
     const tempEntry = new Map();
     const statMapper = StatChart.createMapper(tempEntry);
 
-    dataDayItems.forEach((task) => {
+    dataDayItems.forEach((item) => {
       if (statMapper[this._type]) {
-        statMapper[this._type](task);
+        statMapper[this._type](item);
       }
     });
 

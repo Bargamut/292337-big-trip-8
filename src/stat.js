@@ -172,10 +172,10 @@ const filterDayItems = (dayItems) => {
  * @description Обновить компоненты
  */
 const updateComponents = () => {
-  const filteredTasks = filterDayItems(currentDayItems);
+  const filteredDayItems = filterDayItems(currentDayItems);
 
-  componentChartMoney.update(filteredTasks);
-  componentChartTransport.update(filteredTasks);
+  componentChartMoney.update(filteredDayItems);
+  componentChartTransport.update(filteredDayItems);
 };
 
 /**
