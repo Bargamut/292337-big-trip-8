@@ -18,6 +18,8 @@ const componentChartMoney = new StatChart({
       }]
     },
     options: {
+      responsive: false,
+      maintainAspectRatio: false,
       plugins: {
         datalabels: {
           font: {
@@ -87,6 +89,8 @@ const componentChartTransport = new StatChart({
       }]
     },
     options: {
+      responsive: false,
+      maintainAspectRatio: false,
       plugins: {
         datalabels: {
           font: {
@@ -141,22 +145,27 @@ const componentChartTransport = new StatChart({
 });
 
 document.addEventListener(`DOMContentLoaded`, () => {
-  const nodeMainContent = document.querySelector(`.main`);
-  const nodeStatistics = document.querySelector(`.statistic`);
+  const nodeTable = document.querySelector(`#table`);
+  const nodeStats = document.querySelector(`#stats`);
 
   document.querySelector(`.view-switch`).addEventListener(`click`, (evt) => {
     evt.preventDefault();
 
     const viewType = evt.target.getAttribute(`href`);
 
+    document.querySelector(`.view-switch__item--active`)
+      .classList.remove(`view-switch__item--active`);
+
+    evt.target.classList.add(`view-switch__item--active`);
+
     if (viewType === `#stats`) {
-      nodeMainContent.classList.add(`visually-hidden`);
-      nodeStatistics.classList.remove(`visually-hidden`);
+      nodeTable.classList.add(`visually-hidden`);
+      nodeStats.classList.remove(`visually-hidden`);
 
       updateComponents();
     } else if (viewType === `#table`) {
-      nodeMainContent.classList.remove(`visually-hidden`);
-      nodeStatistics.classList.add(`visually-hidden`);
+      nodeTable.classList.remove(`visually-hidden`);
+      nodeStats.classList.add(`visually-hidden`);
     }
   });
 
@@ -168,13 +177,20 @@ const filterDayItems = (dayItems) => {
   return dayItems;
 };
 
+const isTransport = (type) => {
+  return ![`check-in`, `sightseeing`, `restaurant`].includes(type);
+};
+
 /**
  * @description Обновить компоненты
  */
 const updateComponents = () => {
-  const filteredDayItems = filterDayItems(currentDayItems);
+  let filteredDayItems = filterDayItems(currentDayItems);
 
   componentChartMoney.update(filteredDayItems);
+
+  filteredDayItems = filteredDayItems.filter((dayItem) => isTransport(dayItem.type));
+
   componentChartTransport.update(filteredDayItems);
 };
 

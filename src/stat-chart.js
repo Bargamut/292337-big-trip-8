@@ -1,17 +1,18 @@
 import Component from './component';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import Chart from 'chart.js';
 
 export default class StatChart extends Component {
   constructor(chart) {
     super();
 
-    this._type = chart.type;
-    this._width = chart.width;
-    this._height = chart.height;
-    this._conf = chart.conf;
-
     // Рассчитаем высоту канваса в зависимости от того, сколько данных в него будет передаваться
     this._BAR_HEIGHT = 55;
+
+    this._conf = chart.conf;
+    this._type = chart.type;
+    this._width = chart.width;
+    this._height = chart.height || this._BAR_HEIGHT * this._conf.data.labels.length;
 
     this._chart = null;
   }
@@ -20,7 +21,7 @@ export default class StatChart extends Component {
     const nodeChartTemplate = document.createElement(`template`);
 
     nodeChartTemplate.innerHTML =
-      `<canvas class="statistic__${this._type}" width="${this._width}"></canvas>`;
+      `<canvas class="statistic__${this._type}" width="${this._width}" height="${this._height}"></canvas>`;
 
     return nodeChartTemplate;
   }
@@ -33,11 +34,13 @@ export default class StatChart extends Component {
   update(dayItems) {
     const processedData = this._processDayItems(dayItems);
 
-    this._chart.data.labels = [...processedData.keys()].map((elem) => `${elem}`);
-    this._chart.data.datasets = [{
-      data: [...processedData.values()].map((elem) => elem.total)
-    }];
+    this._height = this._BAR_HEIGHT * processedData.size;
+    this._chart.canvas.height = this._height;
 
+    this._chart.data.labels = [...processedData.keys()].map((key) => `${key}`);
+    this._chart.data.datasets[0].data = [...processedData.values()].map((elem) => elem.total);
+
+    this._chart.resize();
     this._chart.update();
   }
 
