@@ -60,7 +60,7 @@ export default class StatChart extends Component {
         }
 
         target.set(label, {
-          total: 1
+          total: value.price
         });
       },
       transport: (value) => {
