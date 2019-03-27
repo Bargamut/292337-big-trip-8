@@ -80,15 +80,17 @@ export const pointsFilters = [
 
 const generateTripDayItems = () => {
   const arrayItems = [];
-  const arrayItemsTypes = [...mapItemsTypes.values()];
+  const arrayItemsTypes = [...mapItemsTypes.keys()];
 
   // Набираем 7 элементов
   while (arrayItems.length < 7) {
-    const currentItem = arrayItemsTypes[getRandomInt(arrayItemsTypes.length)];
+    const dayItemType = arrayItemsTypes[getRandomInt(arrayItemsTypes.length)];
+    const currentItem = mapItemsTypes.get(dayItemType);
     const destinations = mapDestinations.get(currentItem.group);
 
     arrayItems.push({
       icon: currentItem.icon,
+      type: dayItemType,
       destination: destinations[getRandomInt(destinations.length)],
       caption: currentItem.caption,
       description: generateDescription(),
