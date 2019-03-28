@@ -1,6 +1,5 @@
 import Component from './component';
 import flatpickr from 'flatpickr';
-import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import 'flatpickr/dist/flatpickr.min.css';
 
 /**
@@ -24,7 +23,7 @@ export default class DayItemEdit extends Component {
     this._destination = item.destination;
     this._caption = item.caption;
     this._description = item.description;
-    this._picture = item.picture;
+    this._pictures = item.pictures;
     this._time = item.time;
     this._price = item.price;
     this._offers = item.offers;
@@ -296,8 +295,11 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   _getPointImagesTemplate() {
-    const template =
-      `<img src="${this._picture}" alt="picture from place" class="point__destination-image">`;
+    let template = ``;
+
+    this._pictures.forEach((picture) => {
+      template += `<img src="${picture.src}" alt="${picture.description}" class="point__destination-image">`;
+    });
 
     return template;
   }
