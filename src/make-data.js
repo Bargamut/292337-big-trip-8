@@ -1,34 +1,14 @@
-
-const arrayDescriptionPhrases = [
-  `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
-  `Cras aliquet varius magna, non porta ligula feugiat eget.`,
-  `Fusce tristique felis at fermentum pharetra.`,
-  `Aliquam id orci ut lectus varius viverra.`,
-  `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
-  `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
-  `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.`,
-  `Sed sed nisi sed augue convallis suscipit in sed felis.`,
-  `Aliquam erat volutpat.`,
-  `Nunc fermentum tortor ac porta dapibus.`,
-  `In rutrum ac purus sit amet tempus.`
-];
-
-export const mapDestinations = new Map([
-  [`places`, [`airport`, `hotel`, `sightseeing`, `restaurant`]],
-  [`cities`, [`Amsterdam`, `Geneva`, `Chamonix`]]
-]);
-
 export const mapItemsTypes = new Map([
-  [`bus`, {icon: `🚌`, group: `cities`, caption: `Bus to `}],
-  [`train`, {icon: `🚂`, group: `cities`, caption: `Train to `}],
-  [`ship`, {icon: `🛳️`, group: `cities`, caption: `Ship to `}],
-  [`transport`, {icon: `🚊`, group: `cities`, caption: `Transport to `}],
-  [`drive`, {icon: `🚗`, group: `cities`, caption: `Drive to `}],
-  [`flight`, {icon: `✈️`, group: `cities`, caption: `Flight to `}],
-  [`taxi`, {icon: `🚕`, group: `places`, caption: `Taxi to `}],
-  [`check-in`, {icon: `🏨`, group: `places`, caption: `Check into a `}],
-  [`sightseeing`, {icon: `🏛️`, group: `places`, caption: `Go to `}],
-  [`restaurant`, {icon: `🍴`, group: `places`, caption: `Go to `}]
+  [`bus`, {icon: `🚌`, caption: `Bus to `}],
+  [`train`, {icon: `🚂`, caption: `Train to `}],
+  [`ship`, {icon: `🛳️`, caption: `Ship to `}],
+  [`transport`, {icon: `🚊`, caption: `Transport to `}],
+  [`drive`, {icon: `🚗`, caption: `Drive to `}],
+  [`flight`, {icon: `✈️`, caption: `Flight to `}],
+  [`taxi`, {icon: `🚕`, caption: `Taxi to `}],
+  [`check-in`, {icon: `🏨`, caption: `Check into a `}],
+  [`sightseeing`, {icon: `🏛️`, caption: `Go to `}],
+  [`restaurant`, {icon: `🍴`, caption: `Go to `}]
 ]);
 export const mapOffers = new Map([
   [
@@ -80,57 +60,27 @@ export const pointsFilters = [
 
 const generateTripDayItems = () => {
   const arrayItems = [];
-  const arrayItemsTypes = [...mapItemsTypes.keys()];
 
   // Набираем 7 элементов
   while (arrayItems.length < 7) {
-    const dayItemType = arrayItemsTypes[getRandomInt(arrayItemsTypes.length)];
-    const currentItem = mapItemsTypes.get(dayItemType);
-    const destinations = mapDestinations.get(currentItem.group);
-
     arrayItems.push({
-      icon: currentItem.icon,
-      type: dayItemType,
-      destination: destinations[getRandomInt(destinations.length)],
-      caption: currentItem.caption,
-      description: generateDescription(),
-      picture: `http://picsum.photos/300/150?r=${Math.random()}`,
+      icon: ``,
+      type: ``,
+      destination: ``,
+      caption: ``,
+      description: ``,
+      pictures: [],
       time: {
-        since: `${getRandomInt(6)}:${getRandomInt(59, 10)}`,
-        to: `${getRandomInt(12, 7)}:${getRandomInt(59, 10)}`
+        since: null,
+        to: null
       },
-      price: getRandomInt(30, 10),
-      offers: new Set(generateOffers())
+      price: 0,
+      offers: new Set()
     });
   }
 
   return arrayItems;
 };
-
-const generateOffers = () => {
-  const currentOffers = [];
-  const arrayOffersTypes = [...mapOffers.keys()];
-  const countOffers = getRandomInt(3, 1);
-
-  while (currentOffers.length !== countOffers) {
-    currentOffers.push(arrayOffersTypes[getRandomInt(arrayOffersTypes.length)]);
-  }
-
-  return currentOffers;
-};
-
-const generateDescription = () => {
-  const currentPhrases = [];
-  const countPhrases = getRandomInt(3, 1);
-
-  while (currentPhrases.length !== countPhrases) {
-    currentPhrases.push(arrayDescriptionPhrases[getRandomInt(arrayDescriptionPhrases.length)]);
-  }
-
-  return currentPhrases.join(` `);
-};
-
-const getRandomInt = (max, min = 0) => Math.floor(Math.random() * (max - min)) + min;
 
 const dayIitems = generateTripDayItems();
 

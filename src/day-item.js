@@ -44,7 +44,7 @@ export default class DayItem extends Component {
         <h3 class="trip-point__title">${this._caption} ${this._destination}</h3>
 
         <p class="trip-point__schedule">
-          <span class="trip-point__timetable">${this._time.since} — ${this._time.to}</span>
+          <span class="trip-point__timetable">${moment(this._time.since).format(`HH:mm`)} — ${moment(this._time.to).format(`HH:mm`)}</span>
           <span class="trip-point__duration">${this._countDuration()}</span>
         </p>
 
@@ -101,8 +101,8 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _countDuration() {
-    const a = moment(this._time.since, `HH:mm`);
-    const b = moment(this._time.to, `HH:mm`);
+    const a = moment(this._time.since);
+    const b = moment(this._time.to);
     const duration = moment.utc(
         moment.duration(
             b.diff(a)
@@ -120,12 +120,10 @@ export default class DayItem extends Component {
   _getTripOffersTemplate() {
     let template = ``;
 
-    this._offers.forEach((offerType) => {
-      const offer = this._dataOffers.get(offerType);
-
+    this._offers.forEach((offer) => {
       template +=
           `<li>
-            <button class="trip-point__offer">${offer.caption} +&euro;&nbsp;${offer.price}</button>
+            <button class="trip-point__offer">${offer.title} +&euro;&nbsp;${offer.price}</button>
           </li>`;
     });
 
