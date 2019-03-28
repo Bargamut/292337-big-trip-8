@@ -95,6 +95,11 @@ export default class DayItem extends Component {
     this._element.removeEventListener(`click`, this._onClickEdit);
   }
 
+  /**
+   * @description Вычислить продолжительность
+   * @return {String} Продолжительность в формате "H[h] m[m]"
+   * @memberof DayItem
+   */
   _countDuration() {
     const a = moment(this._time.since, `HH:mm`);
     const b = moment(this._time.to, `HH:mm`);

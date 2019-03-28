@@ -1,5 +1,6 @@
 import Component from './component';
 import flatpickr from 'flatpickr';
+import rangePlugin from 'flatpickr/dist/plugins/rangePlugin';
 import 'flatpickr/dist/flatpickr.min.css';
 
 /**
@@ -75,10 +76,12 @@ export default class DayItemEdit extends Component {
               ${this._getDestinationsListTemplate()}
             </div>
 
-            <label class="point__time">
+            <div class="point__time">
               choose time
-              <input class="point__input" type="text" value="${this._time.since} — ${this._time.to}" name="time" placeholder="00:00 — 00:00">
-            </label>
+              <!--input class="point__input" type="text" value="${this._time.since} — ${this._time.to}" name="time" placeholder="00:00 — 00:00"-->
+              <input class="point__input" type="text" value="${this._time.since}" name="time-start" placeholder="19:00">
+              <input class="point__input" type="text" value="${this._time.to}" name="time-end" placeholder="21:00">
+            </div>
 
             <label class="point__price">
               write price
@@ -169,7 +172,8 @@ export default class DayItemEdit extends Component {
         target.caption = dataItem.caption;
       },
       'destination': (value) => (target.destination = value),
-      'time': (value) => ([target.time.since, target.time.to] = value.split(` — `)),
+      'time-start': (value) => (target.time.since = value),
+      'time-end': (value) => (target.time.to = value),
       'price': (value) => (target.price = parseInt(value, 10)),
       'offer': (value) => target.offers.add(value)
     };
@@ -181,22 +185,39 @@ export default class DayItemEdit extends Component {
    */
   createListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
+    const nodeTimeStart = this._element.querySelector(`.point__input[name="time-start"]`);
+    const nodeTimeEnd = this._element.querySelector(`.point__input[name="time-end"]`);
+    const timeConfig = {
+      enableTime: true,
+      noCalendar: true,
+      altInput: true,
+      altFormat: `H:i`,
+      dateFormat: `H:i`,
+      // eslint-disable-next-line camelcase
+      time_24hr: true
+    };
 
     nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.addEventListener(`reset`, this._onClickDelete);
     this._element.querySelector(`.point__favorite`).addEventListener(`click`, this._onChangeFavorite);
 
-    flatpickr(this._element.querySelector(`.point__input[name="time"]`), {
-      mode: `range`,
-      locale: {
-        rangeSeparator: ` — `
-      },
-      enableTime: true,
-      altInput: true,
-      altFormat: `H:i`,
-      dateFormat: `H:i`,
-      time_24hr: true // eslint-disable-line
-    });
+    const startInstanse = flatpickr(
+        nodeTimeStart,
+        Object.assign({}, timeConfig, {
+          onChange: (selectedDates, dateStr) => {
+            stopInstanse.set(`minDate`, dateStr);
+          }
+        })
+    );
+
+    const stopInstanse = flatpickr(
+        nodeTimeEnd,
+        Object.assign({}, timeConfig, {
+          onChange: (selectedDates, dateStr) => {
+            startInstanse.set(`maxDate`, dateStr);
+          }
+        })
+    );
   }
 
   /**
