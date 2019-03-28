@@ -310,10 +310,8 @@ export default class DayItemEdit extends Component {
   _getDestinationsListTemplate() {
     let template = ``;
 
-    for (let destinations of this._destinations.values()) {
-      destinations.forEach(function (destination) {
-        template += `<option value="${destination}"></option>`;
-      });
+    for (let destination of this._destinations.keys()) {
+      template += `<option value="${destination}"></option>`;
     }
 
     return `<datalist id="destination-select">${template}</datalist>`;

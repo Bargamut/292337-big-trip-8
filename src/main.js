@@ -112,15 +112,14 @@ const renderTripDayItems = (dayItems = []) => {
     }
 
     const componendDayItem = new DayItem(item, currentOffers);
-    // const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, currentOffers);
+    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, currentOffers);
 
     componendDayItem.onEdit = () => {
-      // componendDayItemEdit.render();
-      // nodeTripDayItems.replaceChild(componendDayItemEdit.element, componendDayItem.element);
+      componendDayItemEdit.render();
+      nodeTripDayItems.replaceChild(componendDayItemEdit.element, componendDayItem.element);
       componendDayItem.unrender();
     };
 
-    /*
     const switchToView = () => {
       componendDayItem.render();
       nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
@@ -128,20 +127,20 @@ const renderTripDayItems = (dayItems = []) => {
     };
 
     componendDayItemEdit.onSubmit = (newData) => {
-      Object.assign(item, newData);
+      // Object.assign(item, newData);
 
-      componendDayItem.update(item);
+      // componendDayItem.update(item);
       switchToView();
     };
 
     componendDayItemEdit.onDelete = () => {
-      deleteDayItem(currentDayItems, index);
+      // deleteDayItem(currentDayItems, index);
 
-      nodeTripDayItems.removeChild(componendDayItemEdit.element);
+      // nodeTripDayItems.removeChild(componendDayItemEdit.element);
 
-      componendDayItemEdit.unrender();
+      // componendDayItemEdit.unrender();
     };
-    */
+
     docFragmentTripDayItems.appendChild(
         componendDayItem.render()
     );
