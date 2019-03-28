@@ -2,34 +2,63 @@ import moment from 'moment';
 import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
+import API from './api';
 import currentDayItems, {
   pointsFilters,
-  mapDestinations,
-  mapItemsTypes,
-  mapOffers
+  mapItemsTypes
 } from './make-data';
 import './stat';
 
-document.addEventListener(`DOMContentLoaded`, () => {
-  const nodeDayItemsBoard = document.querySelector(`.trip-day__items`);
+let currentPoints = [];
+let currentOffers = [];
+const mapDestinations = new Map();
+const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`;
+const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
-  renderFilters(document.querySelector(`.trip-filter`), pointsFilters, nodeDayItemsBoard);
-  renderTripDayItems(nodeDayItemsBoard, currentDayItems);
+const api = new API({
+  endPoint: END_POINT,
+  authorization: AUTHORIZATION
+});
+
+document.addEventListener(`DOMContentLoaded`, () => {
+  api.getPoints()
+    .then((data) => {
+      currentPoints = data;
+      console.log(`points`, data);
+
+      renderTripDayItems(currentPoints);
+    });
+  api.getDestinations()
+    .then((data) => {
+      data.forEach((destination) => {
+        mapDestinations.set(destination.name, {
+          description: destination.description,
+          pictures: destination.pictures
+        });
+      });
+      console.log(`destinations`, mapDestinations);
+    });
+  api.getOffers()
+    .then((data) => {
+      currentOffers = data;
+      console.log(`offers`, data);
+    });
+
+  renderFilters(pointsFilters);
 });
 
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Node} nodeFiltersBar DOM-элемент блока фильтров
  * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
- * @param {Node} [nodeDayItemsBoard] DOM-элемент блока событий маршрута
  */
-const renderFilters = (nodeFiltersBar, tripPointsFilters = [], nodeDayItemsBoard) => {
+const renderFilters = (tripPointsFilters = []) => {
+  const nodeFiltersBar = document.querySelector(`.trip-filter`);
   const componentFilter = new Filter(tripPointsFilters);
 
   componentFilter.onClick = (evt) => {
     const filteredDayItems = filterDayItems(currentDayItems, evt.target.id);
 
-    renderTripDayItems(nodeDayItemsBoard, filteredDayItems);
+    renderTripDayItems(filteredDayItems);
   };
 
   componentFilter.render();
@@ -71,26 +100,27 @@ const filterDayItems = (dayItems, filterId) => {
 
 /**
  * @description Отрисовка списка событий маршрута
- * @param {Node} nodeTripDayItems DOM-элемент блока событий маршрута
  * @param {Array} [dayItems=[]] Массив событий маршрута
  */
-const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
+const renderTripDayItems = (dayItems = []) => {
+  const nodeTripDayItems = document.querySelector(`.trip-day__items`);
   const docFragmentTripDayItems = document.createDocumentFragment();
 
-  dayItems.forEach((item, index) => {
+  dayItems.forEach((item) => {
     if (item === null) {
       return;
     }
 
-    const componendDayItem = new DayItem(item, mapOffers);
-    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
+    const componendDayItem = new DayItem(item, currentOffers);
+    // const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, currentOffers);
 
     componendDayItem.onEdit = () => {
-      componendDayItemEdit.render();
-      nodeTripDayItems.replaceChild(componendDayItemEdit.element, componendDayItem.element);
+      // componendDayItemEdit.render();
+      // nodeTripDayItems.replaceChild(componendDayItemEdit.element, componendDayItem.element);
       componendDayItem.unrender();
     };
 
+    /*
     const switchToView = () => {
       componendDayItem.render();
       nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
@@ -111,7 +141,7 @@ const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
 
       componendDayItemEdit.unrender();
     };
-
+    */
     docFragmentTripDayItems.appendChild(
         componendDayItem.render()
     );
