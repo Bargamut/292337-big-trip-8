@@ -3,7 +3,7 @@ import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
 import API from './api';
-import currentDayItems, {
+import {
   pointsFilters,
   mapItemsTypes
 } from './make-data';
@@ -59,7 +59,7 @@ const renderFilters = (tripPointsFilters = []) => {
   const componentFilter = new Filter(tripPointsFilters);
 
   componentFilter.onClick = (evt) => {
-    const filteredDayItems = filterDayItems(currentDayItems, evt.target.id);
+    const filteredDayItems = filterDayItems(currentPoints, evt.target.id);
 
     renderTripDayItems(filteredDayItems);
   };
@@ -89,12 +89,12 @@ const filterDayItems = (dayItems, filterId) => {
     case `filter-future`:
       return dayItems.filter((item) =>
         item !== null &&
-        moment(item.time.since, `HH:mm`).valueOf() > Date.now()
+        item.time.since > Date.now()
       );
     case `filter-past`:
       return dayItems.filter((item) =>
         item !== null &&
-        moment(item.time.to, `HH:mm`).valueOf() < Date.now()
+        item.time.to, `HH:mm` < Date.now()
       );
     case `filter-everything`:
     default: return dayItems;
@@ -123,21 +123,17 @@ const renderTripDayItems = (dayItems = []) => {
       componendDayItem.unrender();
     };
 
-    const switchToView = () => {
+    componendDayItemEdit.onSubmit = (newData) => {
+      Object.assign(item, newData);
+
+      componendDayItem.update(item);
       componendDayItem.render();
       nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
       componendDayItemEdit.unrender();
     };
 
-    componendDayItemEdit.onSubmit = (newData) => {
-      Object.assign(item, newData);
-
-      componendDayItem.update(item);
-      switchToView();
-    };
-
     componendDayItemEdit.onDelete = () => {
-      // deleteDayItem(currentDayItems, index);
+      // deleteDayItem(index);
 
       // nodeTripDayItems.removeChild(componendDayItemEdit.element);
 
