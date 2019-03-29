@@ -86,7 +86,7 @@ export default class API {
    */
   update({id, data}) {
     return this._load({
-      url: `tasks/${id}`,
+      url: `points/${id}`,
       method: this._METHODS.PUT,
       body: JSON.stringify(data),
       headers: new Headers({

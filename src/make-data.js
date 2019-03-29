@@ -29,31 +29,3 @@ export const pointsFilters = [
     value: `past`
   }
 ];
-
-const generateTripDayItems = () => {
-  const arrayItems = [];
-
-  // Набираем 7 элементов
-  while (arrayItems.length < 7) {
-    arrayItems.push({
-      icon: ``,
-      type: ``,
-      destination: ``,
-      caption: ``,
-      description: ``,
-      pictures: [],
-      time: {
-        since: null,
-        to: null
-      },
-      price: 0,
-      offers: new Set()
-    });
-  }
-
-  return arrayItems;
-};
-
-const dayIitems = generateTripDayItems();
-
-export default dayIitems;

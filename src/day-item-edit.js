@@ -1,6 +1,7 @@
 import Component from './component';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import _ from 'lodash';
 
 /**
  * @description Класс компонента события маршрута
@@ -181,7 +182,7 @@ export default class DayItemEdit extends Component {
       'date-start': (value) => (target.time.since = value * MILLISECONDS),
       'date-end': (value) => (target.time.to = value * MILLISECONDS),
       'price': (value) => (target.price = parseInt(value, 10)),
-      'offer': (value) => target.offers.add(value)
+      'offer': (value) => (target.offers.get(value).accepted = true)
     };
   }
 
@@ -268,24 +269,21 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   _getTripOffersTemplate() {
-    const dataOffer = this._dataOffers.get(this._type);
     let template = ``;
 
-    if (typeof dataOffer !== `undefined`) {
-      template = [...dataOffer].reduce((tplString, data) => {
-        const [offerName, offer] = data;
-        const offerID =
-          `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
+    template = [...this._offers].reduce((tplString, data) => {
+      const [offerName, offer] = data;
+      const offerID =
+        `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
 
-        tplString +=
-          `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${this._offers.has(offerName) && `checked`}>
-          <label for="${offerID}" class="point__offers-label">
-            <span class="point__offer-service">${offerName}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
-          </label>`;
+      tplString +=
+        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${offer.accepted ? `checked` : ``}>
+        <label for="${offerID}" class="point__offers-label">
+          <span class="point__offer-service">${offerName}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
+        </label>`;
 
-        return tplString;
-      }, template);
-    }
+      return tplString;
+    }, template);
 
     return template;
   }
@@ -372,7 +370,7 @@ export default class DayItemEdit extends Component {
         to: 0
       },
       price: 0,
-      offers: new Set()
+      offers: _.cloneDeep(this._dataOffers.get(this._type))
     };
 
     const itemEditMapper = this.createMapper(tempEntry);
@@ -419,6 +417,7 @@ export default class DayItemEdit extends Component {
 
     this._icon = dataItem.icon;
     this._caption = dataItem.caption;
+    this._offers = _.cloneDeep(this._dataOffers.get(this._type)) || new Map();
 
     this.removeListeners();
     this._partialUpdate();

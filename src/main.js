@@ -125,10 +125,20 @@ const renderTripDayItems = (dayItems = []) => {
     componendDayItemEdit.onSubmit = (newData) => {
       Object.assign(item, newData);
 
-      componendDayItem.update(item);
-      componendDayItem.render();
-      nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
-      componendDayItemEdit.unrender();
+      // api.update({
+      //   id: item.id,
+      //   data: item.toRAW()
+      // })
+      //   .then((data) => {
+          componendDayItem.update(item);
+          componendDayItem.render();
+          nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
+          componendDayItemEdit.unrender();
+        // })
+        // .catch(() => {
+        //   componendDayItemEdit.shake();
+        //   componendDayItemEdit.unblock(`submit`);
+        // });
     };
 
     componendDayItemEdit.onDelete = () => {

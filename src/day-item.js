@@ -121,12 +121,18 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _getTripOffersTemplate() {
-    const dataOffer = this._dataOffers.get(this._type);
+    // const dataOffer = this._dataOffers.get(this._type);
 
-    return [...this._offers].reduce((template, offerName) => {
+    return [...this._offers].reduce((template, data) => {
+      const [offerName, offer] = data;
+
+      if (!offer.accepted) {
+        return template;
+      }
+
       template +=
           `<li>
-            <button class="trip-point__offer">${offerName} +&euro;&nbsp;${dataOffer.get(offerName).price}</button>
+            <button class="trip-point__offer">${offerName} +&euro;&nbsp;${offer.price}</button>
           </li>`;
 
       return template;

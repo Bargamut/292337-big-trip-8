@@ -22,13 +22,11 @@ export default class ModelItem {
       to: data[`date_to`]
     };
     this.price = data[`base_price`];
-    this.offers = data[`offers`].reduce((set, offer) => {
-      if (offer.accepted) {
-        set.add(offer.title);
-      }
+    this.offers = data[`offers`].reduce((map, offer) => {
+      map.set(offer.title, offer);
 
-      return set;
-    }, new Set());
+      return map;
+    }, new Map());
 
     const itemType = mapItemsTypes.get(data[`type`]);
 
@@ -44,14 +42,16 @@ export default class ModelItem {
   toRAW() {
     return {
       'id': this.id,
-      'title': this.title,
-      'due_date': this.dueDate,
-      'tags': [...this.tags.values()],
-      'picture': this.picture,
-      'repeating_days': this.repeatingDays,
-      'color': this.color,
-      'is_favorite': this.isFavorite,
-      'is_done': this.isDone,
+      'type': this.type,
+      'destination': {
+        name: this.destination,
+        description: this.description,
+        pictures: this.pictures
+      },
+      'date_from': this.time.since,
+      'date_to': this.time.to,
+      'base_price': this.price,
+      'offers': [...this.offers]
     };
   }
 
