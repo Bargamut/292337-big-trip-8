@@ -22,7 +22,13 @@ export default class ModelItem {
       to: data[`date_to`]
     };
     this.price = data[`base_price`];
-    this.offers = new Set(data[`offers`]);
+    this.offers = data[`offers`].reduce((set, offer) => {
+      if (offer.accepted) {
+        set.add(offer.title);
+      }
+
+      return set;
+    }, new Set());
 
     const itemType = mapItemsTypes.get(data[`type`]);
 

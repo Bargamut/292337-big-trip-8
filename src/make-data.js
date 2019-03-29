@@ -1,42 +1,14 @@
 export const mapItemsTypes = new Map([
-  [`bus`, {icon: `🚌`, caption: `Bus to `}],
-  [`train`, {icon: `🚂`, caption: `Train to `}],
-  [`ship`, {icon: `🛳️`, caption: `Ship to `}],
-  [`transport`, {icon: `🚊`, caption: `Transport to `}],
-  [`drive`, {icon: `🚗`, caption: `Drive to `}],
-  [`flight`, {icon: `✈️`, caption: `Flight to `}],
-  [`taxi`, {icon: `🚕`, caption: `Taxi to `}],
-  [`check-in`, {icon: `🏨`, caption: `Check into a `}],
-  [`sightseeing`, {icon: `🏛️`, caption: `Go to `}],
-  [`restaurant`, {icon: `🍴`, caption: `Go to `}]
-]);
-export const mapOffers = new Map([
-  [
-    `add-luggage`,
-    {
-      caption: `Add luggage`,
-      price: 30
-    }
-  ], [
-    `switch-to-comfort-class`,
-    {
-      caption: `Switch to comfort class`,
-      price: 100
-    }
-  ], [
-    `add-meal`,
-    {
-      caption: `Add meal`,
-      price: 15
-    }
-  ],
-  [
-    `choose-seats`,
-    {
-      caption: `Choose seats`,
-      price: 5
-    }
-  ]
+  [`bus`, {icon: `🚌`, group: `transport`, caption: `Bus to `}],
+  [`train`, {icon: `🚂`, group: `transport`, caption: `Train to `}],
+  [`ship`, {icon: `🛳️`, group: `transport`, caption: `Ship to `}],
+  [`transport`, {icon: `🚊`, group: `transport`, caption: `Transport to `}],
+  [`drive`, {icon: `🚗`, group: `transport`, caption: `Drive to `}],
+  [`flight`, {icon: `✈️`, group: `transport`, caption: `Flight to `}],
+  [`taxi`, {icon: `🚕`, group: `transport`, caption: `Taxi to `}],
+  [`check-in`, {icon: `🏨`, group: `place`, caption: `Check into a `}],
+  [`sightseeing`, {icon: `🏛️`, group: `place`, caption: `Go to `}],
+  [`restaurant`, {icon: `🍴`, group: `place`, caption: `Go to `}]
 ]);
 
 export const pointsFilters = [

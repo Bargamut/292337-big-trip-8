@@ -10,25 +10,12 @@ export default class ModelOffer {
    * @memberof ModelOffer
    */
   constructor(data) {
-  }
+    this.type = data[`type`];
+    this.offers = data[`offers`].reduce((map, obj) => {
+      map.set(obj.name, {price: obj.price});
 
-  /**
-   * @description Привести структуру данных к серверному варианту
-   * @return {Object}
-   * @memberof ModelOffer
-   */
-  toRAW() {
-    return {
-      'id': this.id,
-      'title': this.title,
-      'due_date': this.dueDate,
-      'tags': [...this.tags.values()],
-      'picture': this.picture,
-      'repeating_days': this.repeatingDays,
-      'color': this.color,
-      'is_favorite': this.isFavorite,
-      'is_done': this.isDone,
-    };
+      return map;
+    }, new Map());
   }
 
   /**
