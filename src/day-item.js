@@ -11,9 +11,10 @@ export default class DayItem extends Component {
   /**
    * @description Конструктор класса DayItem
    * @param {Object} tripDayItem Объект описания события маршрута
+   * @param {Object} dataOffers Данные по опциям события маршрута
    * @memberof DayItem
    */
-  constructor(tripDayItem) {
+  constructor(tripDayItem, dataOffers) {
     super();
     this._icon = tripDayItem.icon;
     this._caption = tripDayItem.caption;
@@ -21,6 +22,8 @@ export default class DayItem extends Component {
     this._time = tripDayItem.time;
     this._price = tripDayItem.price;
     this._offers = tripDayItem.offers;
+
+    this._dataOffers = dataOffers;
 
     this._onClickEdit = this._onClickEdit.bind(this);
     this._onEdit = null;
@@ -115,16 +118,14 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _getTripOffersTemplate() {
-    let template = ``;
-
-    this._offers.forEach((offer) => {
+    return [...this._offers].reduce((template, offerName) => {
       template +=
           `<li>
-            <button class="trip-point__offer">${offer.title} +&euro;&nbsp;${offer.price}</button>
+            <button class="trip-point__offer">${offerName} +&euro;&nbsp;${this._dataOffers.get(offerName).price}</button>
           </li>`;
-    });
 
-    return template;
+      return template;
+    }, ``);
   }
 
   /**

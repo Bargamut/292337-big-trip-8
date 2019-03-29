@@ -10,7 +10,7 @@ import currentDayItems, {
 import './stat';
 
 let currentPoints = [];
-let currentOffers = [];
+const mapOffers = new Map();
 const mapDestinations = new Map();
 const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
@@ -21,13 +21,26 @@ const api = new API({
 });
 
 document.addEventListener(`DOMContentLoaded`, () => {
-  api.getPoints()
+  api.getOffers()
     .then((data) => {
-      currentPoints = data;
-      console.log(`points`, data);
+      data.reduce((map, obj) => {
+        map.set(obj.type, obj.offers);
 
-      renderTripDayItems(currentPoints);
+        return map;
+      }, mapOffers);
+
+      console.log(`offers`, data);
+    }).then(() => {
+      api.getPoints()
+        .then((data) => {
+          currentPoints = data;
+
+          console.log(`points`, data);
+
+          renderTripDayItems(currentPoints);
+        });
     });
+
   api.getDestinations()
     .then((data) => {
       data.forEach((destination) => {
@@ -36,12 +49,8 @@ document.addEventListener(`DOMContentLoaded`, () => {
           pictures: destination.pictures
         });
       });
+
       console.log(`destinations`, mapDestinations);
-    });
-  api.getOffers()
-    .then((data) => {
-      currentOffers = data;
-      console.log(`offers`, data);
     });
 
   renderFilters(pointsFilters);
@@ -111,8 +120,8 @@ const renderTripDayItems = (dayItems = []) => {
       return;
     }
 
-    const componendDayItem = new DayItem(item, currentOffers);
-    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, currentOffers);
+    const componendDayItem = new DayItem(item, mapOffers.get(item.type));
+    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
 
     componendDayItem.onEdit = () => {
       componendDayItemEdit.render();
@@ -127,9 +136,9 @@ const renderTripDayItems = (dayItems = []) => {
     };
 
     componendDayItemEdit.onSubmit = (newData) => {
-      // Object.assign(item, newData);
+      Object.assign(item, newData);
 
-      // componendDayItem.update(item);
+      componendDayItem.update(item);
       switchToView();
     };
 

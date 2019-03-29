@@ -19,6 +19,8 @@ export default class DayItemEdit extends Component {
    */
   constructor(item, dataDestinations, dataItemsTypes, dataOffers) {
     super();
+    this._id = item.id;
+    this._type = item.type;
     this._icon = item.icon;
     this._destination = item.destination;
     this._caption = item.caption;
@@ -77,9 +79,8 @@ export default class DayItemEdit extends Component {
 
             <div class="point__time">
               choose time
-              <!--input class="point__input" type="text" value="${this._time.since} — ${this._time.to}" name="time" placeholder="00:00 — 00:00"-->
-              <input class="point__input" type="text" value="${this._time.since}" name="time-start" placeholder="19:00">
-              <input class="point__input" type="text" value="${this._time.to}" name="time-end" placeholder="21:00">
+              <input class="point__input" type="text" value="" name="date-start" placeholder="19:00">
+              <input class="point__input" type="text" value="" name="date-end" placeholder="21:00">
             </div>
 
             <label class="point__price">
@@ -163,6 +164,8 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   createMapper(target) {
+    const MILLISECONDS = 1000;
+
     return {
       'travel-way': (value) => {
         const dataItem = this._dataItems.get(value);
@@ -171,8 +174,8 @@ export default class DayItemEdit extends Component {
         target.caption = dataItem.caption;
       },
       'destination': (value) => (target.destination = value),
-      'time-start': (value) => (target.time.since = value),
-      'time-end': (value) => (target.time.to = value),
+      'date-start': (value) => (target.time.since = value * MILLISECONDS),
+      'date-end': (value) => (target.time.to = value * MILLISECONDS),
       'price': (value) => (target.price = parseInt(value, 10)),
       'offer': (value) => target.offers.add(value)
     };
@@ -184,14 +187,13 @@ export default class DayItemEdit extends Component {
    */
   createListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
-    const nodeTimeStart = this._element.querySelector(`.point__input[name="time-start"]`);
-    const nodeTimeEnd = this._element.querySelector(`.point__input[name="time-end"]`);
+    const nodeTimeStart = this._element.querySelector(`.point__input[name="date-start"]`);
+    const nodeTimeEnd = this._element.querySelector(`.point__input[name="date-end"]`);
     const timeConfig = {
       enableTime: true,
-      noCalendar: true,
       altInput: true,
       altFormat: `H:i`,
-      dateFormat: `H:i`,
+      dateFormat: `U`,
       // eslint-disable-next-line camelcase
       time_24hr: true
     };
@@ -203,6 +205,8 @@ export default class DayItemEdit extends Component {
     const startInstanse = flatpickr(
         nodeTimeStart,
         Object.assign({}, timeConfig, {
+          defaultDate: this._time.since,
+          maxDate: this._time.to,
           onChange: (selectedDates, dateStr) => {
             stopInstanse.set(`minDate`, dateStr);
           }
@@ -212,6 +216,8 @@ export default class DayItemEdit extends Component {
     const stopInstanse = flatpickr(
         nodeTimeEnd,
         Object.assign({}, timeConfig, {
+          defaultDate: this._time.to,
+          minDate: this._time.since,
           onChange: (selectedDates, dateStr) => {
             startInstanse.set(`maxDate`, dateStr);
           }
@@ -247,46 +253,51 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   _getTripOffersTemplate() {
-    let template = ``;
+    return [...this._dataOffers.get(this._type)]
+      .reduce((template, data) => {
+        const [offerName, offer] = data;
+        const offerID =
+          `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
 
-    this._dataOffers.forEach((offer, offerType) => {
-      template +=
-        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerType}" name="offer" value="${offerType}" ${this._offers.has(offerType) && `checked`}>
-        <label for="${offerType}" class="point__offers-label">
-          <span class="point__offer-service">${offer.caption}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
-        </label>`;
-    });
+        template +=
+          `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${this._offers.has(offerName) && `checked`}>
+          <label for="${offerID}" class="point__offers-label">
+            <span class="point__offer-service">${offerName}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
+          </label>`;
 
-    return template;
+        return template;
+      }, ``);
   }
 
-  /**
+  /** TODO: Исправить
    * @description Формирование раскрывающегося списка видов путешествия
    * @return {String} Шаблон раскрывающегося списка
    * @memberof DayItemEdit
    */
   _getTravelWaySelectTemplate() {
-    let template = ``;
-    let travelWayGroups = {};
+    const travelWayGroups = [...this._dataItems].reduce(
+        (gropuTemplates, data) => {
+          const [itemType, item] = data;
 
-    this._dataItems.forEach((item, itemType) => {
-      if (typeof travelWayGroups[item.group] === `undefined`) {
-        travelWayGroups[item.group] = ``;
-      }
+          if (typeof gropuTemplates[item.group] === `undefined`) {
+            gropuTemplates[item.group] = ``;
+          }
 
-      travelWayGroups[item.group] +=
-        `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${itemType}" name="travel-way" value="${itemType}" ${ item.icon === this._icon && `checked`}>
-        <label class="travel-way__select-label" for="travel-way-${itemType}">${item.icon} ${itemType}</label>`;
-    });
+          gropuTemplates[item.group] +=
+            `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${itemType}" name="travel-way" value="${itemType}" ${ item.icon === this._icon && `checked`}>
+            <label class="travel-way__select-label" for="travel-way-${itemType}">${item.icon} ${itemType}</label>`;
 
-    Object.values(travelWayGroups).forEach(function (templatePart) {
+          return gropuTemplates;
+        }, {});
+
+    return Object.values(travelWayGroups).reduce((template, templatePart) => {
       template +=
         `<div class="travel-way__select-group">
           ${templatePart}
         </div>`;
-    });
 
-    return template;
+      return template;
+    }, ``);
   }
 
   /**
@@ -295,13 +306,11 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   _getPointImagesTemplate() {
-    let template = ``;
-
-    this._pictures.forEach((picture) => {
+    return [...this._pictures].reduce((template, picture) => {
       template += `<img src="${picture.src}" alt="${picture.description}" class="point__destination-image">`;
-    });
 
-    return template;
+      return template;
+    }, ``);
   }
 
   /**
@@ -331,8 +340,8 @@ export default class DayItemEdit extends Component {
       destination: ``,
       caption: ``,
       time: {
-        since: ``,
-        to: ``
+        since: 0,
+        to: 0
       },
       price: 0,
       offers: new Set()
