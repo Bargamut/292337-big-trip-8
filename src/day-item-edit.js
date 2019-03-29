@@ -161,6 +161,64 @@ export default class DayItemEdit extends Component {
   }
 
   /**
+   * @description Заблокировать элементы управления
+   * @param {String} type Тип блокировки
+   * @memberof DayItemEdit
+   */
+  block(type) {
+    switch (type) {
+      case `submit`:
+        this._element.querySelector(`.point__button--save`).textContent = `Saving...`;
+        break;
+      case `delete`:
+        this._element.querySelector(`button[type="reset"]`).textContent = `Deleting...`;
+        break;
+      default: break;
+    }
+
+    for (const node of this._element.querySelector(`form`).elements) {
+      node.disabled = true;
+    }
+  }
+
+  /**
+   * @description Разблокировать элементы управления
+   * @param {String} type Тип блокировки
+   * @memberof DayItemEdit
+   */
+  unblock(type) {
+    switch (type) {
+      case `submit`:
+        this._element.querySelector(`.point__button--save`).textContent = `Save`;
+        break;
+      case `delete`:
+        this._element.querySelector(`button[type="reset"]`).textContent = `Delete`;
+        break;
+      default: break;
+    }
+
+    for (const node of this._element.querySelector(`form`).elements) {
+      node.disabled = false;
+    }
+  }
+
+  /**
+   * @description Потрясти форму события маршрута
+   * @memberof DayItemEdit
+   */
+  shake() {
+    const ANIMATION_TIMEOUT = 600;
+
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
+    this._element.style.border = `1px solid red`;
+
+    setTimeout(() => {
+      this._element.style.animation = ``;
+      this._element.style.borderColor = `auto`;
+    }, ANIMATION_TIMEOUT);
+  }
+
+  /**
    * @description Разметить данные для обновления компонента
    * на основе данных формы
    * @param {Object} target Целевой объект данных для обновления

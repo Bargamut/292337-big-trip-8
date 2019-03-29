@@ -11,7 +11,7 @@ import './stat';
 let currentPoints = [];
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`;
+const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ik2g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({
@@ -123,22 +123,24 @@ const renderTripDayItems = (dayItems = []) => {
     };
 
     componendDayItemEdit.onSubmit = (newData) => {
+      componendDayItemEdit.block(`submit`);
       Object.assign(item, newData);
 
-      // api.update({
-      //   id: item.id,
-      //   data: item.toRAW()
-      // })
-      //   .then((data) => {
-          componendDayItem.update(item);
+      api.update({
+        id: item.id,
+        data: item.toRAW()
+      })
+        .then((data) => {
+          componendDayItem.update(data);
           componendDayItem.render();
           nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
           componendDayItemEdit.unrender();
-        // })
-        // .catch(() => {
-        //   componendDayItemEdit.shake();
-        //   componendDayItemEdit.unblock(`submit`);
-        // });
+        })
+        .catch((err) => {
+          componendDayItemEdit.shake();
+          componendDayItemEdit.unblock(`submit`);
+          throw err;
+        });
     };
 
     componendDayItemEdit.onDelete = () => {

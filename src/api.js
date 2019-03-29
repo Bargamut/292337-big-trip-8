@@ -74,7 +74,7 @@ export default class API {
         'Content-Type': `application/json`
       })
     }).then(this._toJSON)
-      .then(ModelItem.parseItem);
+      .then(ModelItem.parseData);
   }
 
   /**
@@ -93,7 +93,7 @@ export default class API {
         'Content-Type': `application/json`
       })
     }).then(this._toJSON)
-      .then(ModelItem.parseItem);
+      .then(ModelItem.parseData);
   }
 
   /**
