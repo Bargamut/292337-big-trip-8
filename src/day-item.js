@@ -121,9 +121,7 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _getTripOffersTemplate() {
-    // const dataOffer = this._dataOffers.get(this._type);
-
-    return [...this._offers].reduce((template, data) => {
+    return [...(this._offers || [])].reduce((template, data) => {
       const [offerName, offer] = data;
 
       if (!offer.accepted) {

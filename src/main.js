@@ -11,7 +11,7 @@ import './stat';
 let currentPoints = [];
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt677k3g=`;
+const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf2328g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({

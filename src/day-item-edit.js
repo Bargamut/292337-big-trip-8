@@ -386,7 +386,7 @@ export default class DayItemEdit extends Component {
     let template = ``;
 
     if (typeof this._pictures !== `undefined`) {
-      template = [...this._pictures].reduce((tplString, picture) => {
+      template = [...(this._pictures || [])].reduce((tplString, picture) => {
         tplString += `<img src="${picture.src}" alt="${picture.description}" class="point__destination-image">`;
 
         return tplString;

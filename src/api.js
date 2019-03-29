@@ -27,7 +27,7 @@ export default class API {
   }
 
   /**
-   * @description Запрос данных
+   * @description Запрос данных всех опций к точкам маршрута
    * @return {JSON} Данные в JSON-формате
    * @memberof API
    */
@@ -38,7 +38,7 @@ export default class API {
   }
 
   /**
-   * @description Запрос данных
+   * @description Запрос данных всех точек маршрута
    * @return {JSON} Данные в JSON-формате
    * @memberof API
    */
@@ -49,7 +49,7 @@ export default class API {
   }
 
   /**
-   * @description Запрос данных
+   * @description Запрос данных всех направлений
    * @return {JSON} Данные в JSON-формате
    * @memberof API
    */
