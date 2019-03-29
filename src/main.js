@@ -11,7 +11,7 @@ import './stat';
 let currentPoints = [];
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ik2g=`;
+const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt677k3g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({
@@ -20,6 +20,19 @@ const api = new API({
 });
 
 document.addEventListener(`DOMContentLoaded`, () => {
+  processLoadingStatus(`loading`);
+
+  api.getPoints()
+  .then((data) => {
+    processLoadingStatus();
+
+    currentPoints = data;
+
+    renderTripDayItems(currentPoints);
+  }).catch(() => {
+    processLoadingStatus(`error`);
+  });
+
   api.getOffers()
     .then((data) => {
       data.reduce((map, obj) => {
@@ -27,13 +40,6 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
         return map;
       }, mapOffers);
-    }).then(() => {
-      api.getPoints()
-        .then((data) => {
-          currentPoints = data;
-
-          renderTripDayItems(currentPoints);
-        });
     });
 
   api.getDestinations()
@@ -69,15 +75,6 @@ const renderFilters = (tripPointsFilters = []) => {
 };
 
 /**
- * @description Удаление события маршрута
- * @param {Array} dayItems Массив событий
- * @param {Number} index Индекс удаляемого события
- */
-const deleteDayItem = (dayItems, index) => {
-  dayItems[index] = null;
-};
-
-/**
  * @description Отфильтровать события маршрута
  * @param {Array} dayItems События маршрута
  * @param {String} filterId ID фильтра
@@ -97,6 +94,23 @@ const filterDayItems = (dayItems, filterId) => {
       );
     case `filter-everything`:
     default: return dayItems;
+  }
+};
+
+/**
+ * @description Вывести сообщение статуса загрузки данных
+ * @param {String} status Текущий статус загрузки данных
+ */
+const processLoadingStatus = (status) => {
+  const nodeTripDayItems = document.querySelector(`.trip-day__items`);
+
+  switch (status) {
+    case `loading`: nodeTripDayItems.innerHTML = `Loading route...`; break;
+    case `error`: nodeTripDayItems.innerHTML =
+        `Something went wrong while loading your route info.
+        Check your connection or try again later`;
+      break;
+    default: break;
   }
 };
 
@@ -134,6 +148,7 @@ const renderTripDayItems = (dayItems = []) => {
           componendDayItem.update(data);
           componendDayItem.render();
           nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
+          componendDayItemEdit.unblock(`submit`);
           componendDayItemEdit.unrender();
         })
         .catch((err) => {
@@ -143,12 +158,20 @@ const renderTripDayItems = (dayItems = []) => {
         });
     };
 
-    componendDayItemEdit.onDelete = () => {
-      // deleteDayItem(index);
+    componendDayItemEdit.onDelete = ({id}) => {
+      componendDayItemEdit.block(`delete`);
 
-      // nodeTripDayItems.removeChild(componendDayItemEdit.element);
-
-      // componendDayItemEdit.unrender();
+      api.delete({id})
+        .then(() => {
+          nodeTripDayItems.removeChild(componendDayItemEdit.element);
+          componendDayItemEdit.unrender();
+        })
+        .then(() => api.getPoints())
+        .catch((err) => {
+          componendDayItemEdit.shake();
+          componendDayItemEdit.unblock(`delete`);
+          throw err;
+        });
     };
 
     docFragmentTripDayItems.appendChild(

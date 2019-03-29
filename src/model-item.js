@@ -40,8 +40,6 @@ export default class ModelItem {
    * @memberof ModelItem
    */
   toRAW() {
-    debugger;
-
     return {
       'id': this.id,
       'type': this.type,
@@ -53,7 +51,7 @@ export default class ModelItem {
       'date_from': this.time.since,
       'date_to': this.time.to,
       'base_price': this.price,
-      'offers': [...this.offers].reduce((offers, data) => {
+      'offers': [...(this.offers || [])].reduce((offers, data) => {
         const [title, offerData] = data;
 
         offerData.title = title;
@@ -84,6 +82,9 @@ export default class ModelItem {
    * @memberof ModelItem
    */
   static parseDatas(data) {
+    // FIXME: Временная очиста массива данных от null-элементов
+    data = data.filter((element) => element !== null);
+
     return data.map(ModelItem.parseData);
   }
 }

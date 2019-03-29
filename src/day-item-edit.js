@@ -214,7 +214,7 @@ export default class DayItemEdit extends Component {
 
     setTimeout(() => {
       this._element.style.animation = ``;
-      this._element.style.borderColor = `auto`;
+      this._element.style.border = ``;
     }, ANIMATION_TIMEOUT);
   }
 
@@ -329,7 +329,7 @@ export default class DayItemEdit extends Component {
   _getTripOffersTemplate() {
     let template = ``;
 
-    template = [...this._offers].reduce((tplString, data) => {
+    template = [...(this._offers || [])].reduce((tplString, data) => {
       const [offerName, offer] = data;
       const offerID =
         `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
@@ -511,7 +511,7 @@ export default class DayItemEdit extends Component {
     evt.preventDefault();
 
     if (this._onDelete instanceof Function) {
-      this._onDelete();
+      this._onDelete({id: this._id});
     }
   }
 

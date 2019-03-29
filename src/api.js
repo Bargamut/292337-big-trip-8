@@ -67,7 +67,7 @@ export default class API {
    */
   create({task}) {
     return this._load({
-      url: `tasks`,
+      url: `points`,
       method: this._METHODS.POST,
       body: JSON.stringify(task),
       headers: new Headers({
@@ -104,7 +104,7 @@ export default class API {
    */
   delete({id}) {
     return this._load({
-      url: `tasks/${id}`,
+      url: `points/${id}`,
       method: this._METHODS.DELETE
     });
   }
