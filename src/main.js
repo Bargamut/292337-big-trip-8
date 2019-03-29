@@ -1,4 +1,3 @@
-import moment from 'moment';
 import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';

@@ -1,6 +1,15 @@
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import StatChart from './stat-chart';
-import currentDayItems from './make-data';
+import API from './api';
+
+let currentPoints = [];
+const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`;
+const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
+
+const api = new API({
+  endPoint: END_POINT,
+  authorization: AUTHORIZATION
+});
 
 const componentChartMoney = new StatChart({
   type: `money`,
@@ -175,8 +184,13 @@ document.addEventListener(`DOMContentLoaded`, () => {
     return false;
   });
 
-  renderCharts();
-  updateComponents();
+  api.getPoints()
+    .then((data) => {
+      currentPoints = data;
+
+      renderCharts();
+      updateComponents();
+    });
 });
 
 /**
@@ -201,7 +215,7 @@ const isTransport = (type) => {
  * @description Обновить компоненты
  */
 const updateComponents = () => {
-  let filteredDayItems = filterDayItems(currentDayItems);
+  let filteredDayItems = filterDayItems(currentPoints);
 
   componentChartMoney.update(filteredDayItems);
 
