@@ -10,18 +10,20 @@ import moment from 'moment';
 export default class DayItem extends Component {
   /**
    * @description Конструктор класса DayItem
-   * @param {Object} tripDayItem Объект описания события маршрута
-   * @param {Map} dataOffers Map описания заказов при событии маршрута
+   * @param {Object} item Объект описания события маршрута
+   * @param {Object} dataOffers Данные по опциям события маршрута
    * @memberof DayItem
    */
-  constructor(tripDayItem, dataOffers) {
+  constructor(item, dataOffers) {
     super();
-    this._icon = tripDayItem.icon;
-    this._caption = tripDayItem.caption;
-    this._destination = tripDayItem.destination;
-    this._time = tripDayItem.time;
-    this._price = tripDayItem.price;
-    this._offers = tripDayItem.offers;
+    this._id = item.id;
+    this._type = item.type;
+    this._icon = item.icon;
+    this._caption = item.caption;
+    this._destination = item.destination;
+    this._time = item.time;
+    this._price = item.price;
+    this._offers = item.offers;
 
     this._dataOffers = dataOffers;
 
@@ -44,7 +46,7 @@ export default class DayItem extends Component {
         <h3 class="trip-point__title">${this._caption} ${this._destination}</h3>
 
         <p class="trip-point__schedule">
-          <span class="trip-point__timetable">${this._time.since} — ${this._time.to}</span>
+          <span class="trip-point__timetable">${moment(this._time.since).format(`HH:mm`)} — ${moment(this._time.to).format(`HH:mm`)}</span>
           <span class="trip-point__duration">${this._countDuration()}</span>
         </p>
 
@@ -71,6 +73,7 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   update(data) {
+    this._type = data.type;
     this._icon = data.icon;
     this._destination = data.destination;
     this._caption = data.caption;
@@ -95,9 +98,14 @@ export default class DayItem extends Component {
     this._element.removeEventListener(`click`, this._onClickEdit);
   }
 
+  /**
+   * @description Вычислить продолжительность
+   * @return {String} Продолжительность в формате "H[h] m[m]"
+   * @memberof DayItem
+   */
   _countDuration() {
-    const a = moment(this._time.since, `HH:mm`);
-    const b = moment(this._time.to, `HH:mm`);
+    const a = moment(this._time.since);
+    const b = moment(this._time.to);
     const duration = moment.utc(
         moment.duration(
             b.diff(a)
@@ -113,18 +121,20 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _getTripOffersTemplate() {
-    let template = ``;
+    return [...(this._offers || [])].reduce((template, data) => {
+      const [offerName, offer] = data;
 
-    this._offers.forEach((offerType) => {
-      const offer = this._dataOffers.get(offerType);
+      if (!offer.accepted) {
+        return template;
+      }
 
       template +=
           `<li>
-            <button class="trip-point__offer">${offer.caption} +&euro;&nbsp;${offer.price}</button>
+            <button class="trip-point__offer">${offerName} +&euro;&nbsp;${offer.price}</button>
           </li>`;
-    });
 
-    return template;
+      return template;
+    }, ``);
   }
 
   /**

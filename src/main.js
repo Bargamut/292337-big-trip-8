@@ -1,49 +1,77 @@
-import moment from 'moment';
 import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
-import currentDayItems, {
+import API from './api';
+import {
   pointsFilters,
-  mapDestinations,
-  mapItemsTypes,
-  mapOffers
+  mapItemsTypes
 } from './make-data';
 import './stat';
 
-document.addEventListener(`DOMContentLoaded`, () => {
-  const nodeDayItemsBoard = document.querySelector(`.trip-day__items`);
+let currentPoints = [];
+const mapOffers = new Map();
+const mapDestinations = new Map();
+const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf2328g=`;
+const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
-  renderFilters(document.querySelector(`.trip-filter`), pointsFilters, nodeDayItemsBoard);
-  renderTripDayItems(nodeDayItemsBoard, currentDayItems);
+const api = new API({
+  endPoint: END_POINT,
+  authorization: AUTHORIZATION
+});
+
+document.addEventListener(`DOMContentLoaded`, () => {
+  processLoadingStatus(`loading`);
+
+  api.getPoints()
+  .then((data) => {
+    processLoadingStatus();
+
+    currentPoints = data;
+
+    renderTripDayItems(currentPoints);
+  }).catch(() => {
+    processLoadingStatus(`error`);
+  });
+
+  api.getOffers()
+    .then((data) => {
+      data.reduce((map, obj) => {
+        map.set(obj.type, obj.offers);
+
+        return map;
+      }, mapOffers);
+    });
+
+  api.getDestinations()
+    .then((data) => {
+      data.forEach((destination) => {
+        mapDestinations.set(destination.name, {
+          description: destination.description,
+          pictures: destination.pictures
+        });
+      });
+    });
+
+  renderFilters(pointsFilters);
 });
 
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Node} nodeFiltersBar DOM-элемент блока фильтров
  * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
- * @param {Node} [nodeDayItemsBoard] DOM-элемент блока событий маршрута
  */
-const renderFilters = (nodeFiltersBar, tripPointsFilters = [], nodeDayItemsBoard) => {
+const renderFilters = (tripPointsFilters = []) => {
+  const nodeFiltersBar = document.querySelector(`.trip-filter`);
   const componentFilter = new Filter(tripPointsFilters);
 
   componentFilter.onClick = (evt) => {
-    const filteredDayItems = filterDayItems(currentDayItems, evt.target.id);
+    const filteredDayItems = filterDayItems(currentPoints, evt.target.id);
 
-    renderTripDayItems(nodeDayItemsBoard, filteredDayItems);
+    renderTripDayItems(filteredDayItems);
   };
 
   componentFilter.render();
 
   nodeFiltersBar.parentNode.replaceChild(componentFilter.element, nodeFiltersBar);
-};
-
-/**
- * @description Удаление события маршрута
- * @param {Array} dayItems Массив событий
- * @param {Number} index Индекс удаляемого события
- */
-const deleteDayItem = (dayItems, index) => {
-  dayItems[index] = null;
 };
 
 /**
@@ -57,12 +85,12 @@ const filterDayItems = (dayItems, filterId) => {
     case `filter-future`:
       return dayItems.filter((item) =>
         item !== null &&
-        moment(item.time.since, `HH:mm`).valueOf() > Date.now()
+        item.time.since > Date.now()
       );
     case `filter-past`:
       return dayItems.filter((item) =>
         item !== null &&
-        moment(item.time.to, `HH:mm`).valueOf() < Date.now()
+        item.time.to, `HH:mm` < Date.now()
       );
     case `filter-everything`:
     default: return dayItems;
@@ -70,14 +98,31 @@ const filterDayItems = (dayItems, filterId) => {
 };
 
 /**
+ * @description Вывести сообщение статуса загрузки данных
+ * @param {String} status Текущий статус загрузки данных
+ */
+const processLoadingStatus = (status) => {
+  const nodeTripDayItems = document.querySelector(`.trip-day__items`);
+
+  switch (status) {
+    case `loading`: nodeTripDayItems.innerHTML = `Loading route...`; break;
+    case `error`: nodeTripDayItems.innerHTML =
+        `Something went wrong while loading your route info.
+        Check your connection or try again later`;
+      break;
+    default: break;
+  }
+};
+
+/**
  * @description Отрисовка списка событий маршрута
- * @param {Node} nodeTripDayItems DOM-элемент блока событий маршрута
  * @param {Array} [dayItems=[]] Массив событий маршрута
  */
-const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
+const renderTripDayItems = (dayItems = []) => {
+  const nodeTripDayItems = document.querySelector(`.trip-day__items`);
   const docFragmentTripDayItems = document.createDocumentFragment();
 
-  dayItems.forEach((item, index) => {
+  dayItems.forEach((item) => {
     if (item === null) {
       return;
     }
@@ -91,25 +136,42 @@ const renderTripDayItems = (nodeTripDayItems, dayItems = []) => {
       componendDayItem.unrender();
     };
 
-    const switchToView = () => {
-      componendDayItem.render();
-      nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
-      componendDayItemEdit.unrender();
-    };
-
     componendDayItemEdit.onSubmit = (newData) => {
+      componendDayItemEdit.block(`submit`);
       Object.assign(item, newData);
 
-      componendDayItem.update(item);
-      switchToView();
+      api.update({
+        id: item.id,
+        data: item.toRAW()
+      })
+        .then((data) => {
+          componendDayItem.update(data);
+          componendDayItem.render();
+          nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
+          componendDayItemEdit.unblock(`submit`);
+          componendDayItemEdit.unrender();
+        })
+        .catch((err) => {
+          componendDayItemEdit.shake();
+          componendDayItemEdit.unblock(`submit`);
+          throw err;
+        });
     };
 
-    componendDayItemEdit.onDelete = () => {
-      deleteDayItem(currentDayItems, index);
+    componendDayItemEdit.onDelete = ({id}) => {
+      componendDayItemEdit.block(`delete`);
 
-      nodeTripDayItems.removeChild(componendDayItemEdit.element);
-
-      componendDayItemEdit.unrender();
+      api.delete({id})
+        .then(() => {
+          nodeTripDayItems.removeChild(componendDayItemEdit.element);
+          componendDayItemEdit.unrender();
+        })
+        .then(() => api.getPoints())
+        .catch((err) => {
+          componendDayItemEdit.shake();
+          componendDayItemEdit.unblock(`delete`);
+          throw err;
+        });
     };
 
     docFragmentTripDayItems.appendChild(
