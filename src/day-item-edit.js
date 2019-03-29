@@ -41,6 +41,7 @@ export default class DayItemEdit extends Component {
 
     this._isFavorite = false;
 
+    this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangeFavorite = this._onChangeFavorite.bind(this);
   }
 
@@ -187,8 +188,11 @@ export default class DayItemEdit extends Component {
    */
   createListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
+    const nodeItemFavorite = this._element.querySelector(`.point__favorite`);
     const nodeTimeStart = this._element.querySelector(`.point__input[name="date-start"]`);
     const nodeTimeEnd = this._element.querySelector(`.point__input[name="date-end"]`);
+    const nodeDestination = this._element.querySelector(`#destination`);
+
     const timeConfig = {
       enableTime: true,
       altInput: true,
@@ -198,9 +202,10 @@ export default class DayItemEdit extends Component {
       time_24hr: true
     };
 
+    nodeDestination.addEventListener(`change`, this._onChangeDestination);
     nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.addEventListener(`reset`, this._onClickDelete);
-    this._element.querySelector(`.point__favorite`).addEventListener(`click`, this._onChangeFavorite);
+    nodeItemFavorite.addEventListener(`click`, this._onChangeFavorite);
 
     const startInstanse = flatpickr(
         nodeTimeStart,
@@ -231,10 +236,13 @@ export default class DayItemEdit extends Component {
    */
   removeListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
+    const nodeItemFavorite = this._element.querySelector(`.point__favorite`);
+    const nodeDestination = this._element.querySelector(`#destination`);
 
+    nodeDestination.removeEventListener(`change`, this._onChangeDestination);
     nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.removeEventListener(`reset`, this._onClickDelete);
-    this._element.querySelector(`.point__favorite`).removeEventListener(`click`, this._onChangeFavorite);
+    nodeItemFavorite.removeEventListener(`click`, this._onChangeFavorite);
 
     this._nodeItemForm = null;
   }
@@ -269,7 +277,7 @@ export default class DayItemEdit extends Component {
       }, ``);
   }
 
-  /** TODO: Исправить
+  /**
    * @description Формирование раскрывающегося списка видов путешествия
    * @return {String} Шаблон раскрывающегося списка
    * @memberof DayItemEdit
@@ -356,6 +364,26 @@ export default class DayItemEdit extends Component {
     }
 
     return tempEntry;
+  }
+
+  /**
+   * @description Функция-обработчик обновления
+   * места назначения
+   * @param {Event} evt Объект события
+   * @memberof DayItemEdit
+   */
+  _onChangeDestination(evt) {
+    const destinationData = this._destinations.get(evt.target.value);
+
+    if (typeof destinationData !== `undefined`) {
+      this._destination = evt.target.value;
+      this._description = destinationData.description;
+      this._pictures = destinationData.pictures;
+
+      this.removeListeners();
+      this._partialUpdate();
+      this.createListeners();
+    }
   }
 
   /**

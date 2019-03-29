@@ -28,14 +28,10 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
         return map;
       }, mapOffers);
-
-      console.log(`offers`, data);
     }).then(() => {
       api.getPoints()
         .then((data) => {
           currentPoints = data;
-
-          console.log(`points`, data);
 
           renderTripDayItems(currentPoints);
         });
@@ -49,8 +45,6 @@ document.addEventListener(`DOMContentLoaded`, () => {
           pictures: destination.pictures
         });
       });
-
-      console.log(`destinations`, mapDestinations);
     });
 
   renderFilters(pointsFilters);
