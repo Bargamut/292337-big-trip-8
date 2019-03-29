@@ -114,7 +114,7 @@ const renderTripDayItems = (dayItems = []) => {
       return;
     }
 
-    const componendDayItem = new DayItem(item, mapOffers.get(item.type));
+    const componendDayItem = new DayItem(item, mapOffers);
     const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
 
     componendDayItem.onEdit = () => {

@@ -41,6 +41,7 @@ export default class DayItemEdit extends Component {
 
     this._isFavorite = false;
 
+    this._onChangeType = this._onChangeType.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onChangeFavorite = this._onChangeFavorite.bind(this);
   }
@@ -149,6 +150,7 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   update(data) {
+    this._type = data.type;
     this._icon = data.icon;
     this._destination = data.destination;
     this._caption = data.caption;
@@ -171,6 +173,7 @@ export default class DayItemEdit extends Component {
       'travel-way': (value) => {
         const dataItem = this._dataItems.get(value);
 
+        target.type = value;
         target.icon = dataItem.icon;
         target.caption = dataItem.caption;
       },
@@ -188,6 +191,7 @@ export default class DayItemEdit extends Component {
    */
   createListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
+    const nodeTypeSelect = this._element.querySelector(`.travel-way__select`);
     const nodeItemFavorite = this._element.querySelector(`.point__favorite`);
     const nodeTimeStart = this._element.querySelector(`.point__input[name="date-start"]`);
     const nodeTimeEnd = this._element.querySelector(`.point__input[name="date-end"]`);
@@ -203,6 +207,7 @@ export default class DayItemEdit extends Component {
     };
 
     nodeDestination.addEventListener(`change`, this._onChangeDestination);
+    nodeTypeSelect.addEventListener(`change`, this._onChangeType);
     nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.addEventListener(`reset`, this._onClickDelete);
     nodeItemFavorite.addEventListener(`click`, this._onChangeFavorite);
@@ -236,10 +241,12 @@ export default class DayItemEdit extends Component {
    */
   removeListeners() {
     const nodeItemForm = this._element.querySelector(`form`);
+    const nodeTypeSelect = this._element.querySelector(`.travel-way__select`);
     const nodeItemFavorite = this._element.querySelector(`.point__favorite`);
     const nodeDestination = this._element.querySelector(`#destination`);
 
     nodeDestination.removeEventListener(`change`, this._onChangeDestination);
+    nodeTypeSelect.removeEventListener(`change`, this._onChangeType);
     nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.removeEventListener(`reset`, this._onClickDelete);
     nodeItemFavorite.removeEventListener(`click`, this._onChangeFavorite);
@@ -261,20 +268,26 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   _getTripOffersTemplate() {
-    return [...this._dataOffers.get(this._type)]
-      .reduce((template, data) => {
+    const dataOffer = this._dataOffers.get(this._type);
+    let template = ``;
+
+    if (typeof dataOffer !== `undefined`) {
+      template = [...dataOffer].reduce((tplString, data) => {
         const [offerName, offer] = data;
         const offerID =
           `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
 
-        template +=
+        tplString +=
           `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${this._offers.has(offerName) && `checked`}>
           <label for="${offerID}" class="point__offers-label">
             <span class="point__offer-service">${offerName}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
           </label>`;
 
-        return template;
-      }, ``);
+        return tplString;
+      }, template);
+    }
+
+    return template;
   }
 
   /**
@@ -292,7 +305,7 @@ export default class DayItemEdit extends Component {
           }
 
           gropuTemplates[item.group] +=
-            `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${itemType}" name="travel-way" value="${itemType}" ${ item.icon === this._icon && `checked`}>
+            `<input class="travel-way__select-input visually-hidden" type="radio" id="travel-way-${itemType}" name="travel-way" value="${itemType}" ${ item.icon === this._icon ? `checked` : ``}>
             <label class="travel-way__select-label" for="travel-way-${itemType}">${item.icon} ${itemType}</label>`;
 
           return gropuTemplates;
@@ -314,11 +327,17 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   _getPointImagesTemplate() {
-    return [...this._pictures].reduce((template, picture) => {
-      template += `<img src="${picture.src}" alt="${picture.description}" class="point__destination-image">`;
+    let template = ``;
 
-      return template;
-    }, ``);
+    if (typeof this._pictures !== `undefined`) {
+      template = [...this._pictures].reduce((tplString, picture) => {
+        tplString += `<img src="${picture.src}" alt="${picture.description}" class="point__destination-image">`;
+
+        return tplString;
+      }, template);
+    }
+
+    return template;
   }
 
   /**
@@ -344,6 +363,7 @@ export default class DayItemEdit extends Component {
    */
   _processForm(formData) {
     const tempEntry = {
+      type: ``,
       icon: ``,
       destination: ``,
       caption: ``,
@@ -384,6 +404,25 @@ export default class DayItemEdit extends Component {
       this._partialUpdate();
       this.createListeners();
     }
+  }
+
+  /**
+   * @description Функция-обработчик обновления
+   * типа события маршрута
+   * @param {Event} evt Объект события
+   * @memberof DayItemEdit
+   */
+  _onChangeType(evt) {
+    this._type = evt.target.value;
+
+    const dataItem = this._dataItems.get(this._type);
+
+    this._icon = dataItem.icon;
+    this._caption = dataItem.caption;
+
+    this.removeListeners();
+    this._partialUpdate();
+    this.createListeners();
   }
 
   /**

@@ -10,18 +10,20 @@ import moment from 'moment';
 export default class DayItem extends Component {
   /**
    * @description Конструктор класса DayItem
-   * @param {Object} tripDayItem Объект описания события маршрута
+   * @param {Object} item Объект описания события маршрута
    * @param {Object} dataOffers Данные по опциям события маршрута
    * @memberof DayItem
    */
-  constructor(tripDayItem, dataOffers) {
+  constructor(item, dataOffers) {
     super();
-    this._icon = tripDayItem.icon;
-    this._caption = tripDayItem.caption;
-    this._destination = tripDayItem.destination;
-    this._time = tripDayItem.time;
-    this._price = tripDayItem.price;
-    this._offers = tripDayItem.offers;
+    this._id = item.id;
+    this._type = item.type;
+    this._icon = item.icon;
+    this._caption = item.caption;
+    this._destination = item.destination;
+    this._time = item.time;
+    this._price = item.price;
+    this._offers = item.offers;
 
     this._dataOffers = dataOffers;
 
@@ -71,6 +73,7 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   update(data) {
+    this._type = data.type;
     this._icon = data.icon;
     this._destination = data.destination;
     this._caption = data.caption;
@@ -118,10 +121,12 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _getTripOffersTemplate() {
+    const dataOffer = this._dataOffers.get(this._type);
+
     return [...this._offers].reduce((template, offerName) => {
       template +=
           `<li>
-            <button class="trip-point__offer">${offerName} +&euro;&nbsp;${this._dataOffers.get(offerName).price}</button>
+            <button class="trip-point__offer">${offerName} +&euro;&nbsp;${dataOffer.get(offerName).price}</button>
           </li>`;
 
       return template;
