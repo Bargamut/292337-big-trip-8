@@ -8,14 +8,14 @@ const putToWSCache = (evt, response) => {
 self.addEventListener(`install`, (evt) => {
   const openCache = caches.open(CACHE_NAME)
     .then((cache) => {
-      cache.addAll([
-        `./`,
-        `./index.html`,
-        `./bundle.js`,
-        `./css/normalize.css`,
-        `./css/main.css`,
-        `./img/star.svg`,
-        `./img/star--check.svg`
+      return cache.addAll([
+        `/`,
+        `/index.html`,
+        `/bundle.js`,
+        `/css/normalize.css`,
+        `/css/main.css`,
+        `/img/star.svg`,
+        `/img/star--check.svg`
       ]);
     });
 
@@ -26,14 +26,14 @@ self.addEventListener(`fetch`, (evt) => {
   evt.respondWith(
       fetch(evt.pequest)
         .then((response) => {
-          putToWSCache(evt, response);
+          putToWSCache(evt, response.clone());
 
           return response.clone();
         })
         .catch(() => {
           return caches.match(evt.request)
             .then((response) => {
-              return response.clone();
+              return response;
             })
             .catch((err) => {
               throw err;
