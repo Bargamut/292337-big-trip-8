@@ -9,13 +9,13 @@ self.addEventListener(`install`, (evt) => {
   const openCache = caches.open(CACHE_NAME)
     .then((cache) => {
       return cache.addAll([
-        `/`,
-        `/index.html`,
-        `/bundle.js`,
-        `/css/normalize.css`,
-        `/css/main.css`,
-        `/img/star.svg`,
-        `/img/star--check.svg`
+        `./`,
+        `./index.html`,
+        `./bundle.js`,
+        `./css/normalize.css`,
+        `./css/main.css`,
+        `./img/star.svg`,
+        `./img/star--check.svg`
       ]);
     });
 
