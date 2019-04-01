@@ -2,6 +2,8 @@ import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
 import API from './api';
+import Provider from './provider';
+import Store from './store';
 import {
   pointsFilters,
   mapItemsTypes
@@ -13,16 +15,35 @@ const mapOffers = new Map();
 const mapDestinations = new Map();
 const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf2328g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
+const POINTS_STORE_KEY = `points-store-key`;
 
 const api = new API({
   endPoint: END_POINT,
   authorization: AUTHORIZATION
 });
+const store = new Store({
+  keyStorage: POINTS_STORE_KEY,
+  storage: localStorage
+});
+const provider = new Provider({
+  api,
+  store,
+  generateId: () => (Date.now() + Math.random())
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.replace(/^\[OFFLINE\]\s(.*)/, `$1`);
+
+  provider.syncPoints();
+});
+window.addEventListener(`offline`, () => {
+  document.title = `[OFFLINE] ${document.title}`;
+});
 
 document.addEventListener(`DOMContentLoaded`, () => {
   processLoadingStatus(`loading`);
 
-  api.getPoints()
+  provider.getPoints()
   .then((data) => {
     processLoadingStatus();
 
@@ -140,7 +161,7 @@ const renderTripDayItems = (dayItems = []) => {
       componendDayItemEdit.block(`submit`);
       Object.assign(item, newData);
 
-      api.update({
+      provider.updatePoint({
         id: item.id,
         data: item.toRAW()
       })
@@ -161,12 +182,12 @@ const renderTripDayItems = (dayItems = []) => {
     componendDayItemEdit.onDelete = ({id}) => {
       componendDayItemEdit.block(`delete`);
 
-      api.delete({id})
+      provider.deletePoint({id})
         .then(() => {
           nodeTripDayItems.removeChild(componendDayItemEdit.element);
           componendDayItemEdit.unrender();
         })
-        .then(() => api.getPoints())
+        .then(() => provider.getPoints())
         .catch((err) => {
           componendDayItemEdit.shake();
           componendDayItemEdit.unblock(`delete`);

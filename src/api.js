@@ -61,15 +61,15 @@ export default class API {
 
   /**
    * @description Послать данные для записи
-   * @param {*} {task} Данные задачи
+   * @param {*} {point} Данные точки маршрута
    * @return {JSON} Ответ сервера
    * @memberof API
    */
-  create({task}) {
+  createPoint({point}) {
     return this._load({
       url: `points`,
       method: this._METHODS.POST,
-      body: JSON.stringify(task),
+      body: JSON.stringify(point),
       headers: new Headers({
         'Content-Type': `application/json`
       })
@@ -79,12 +79,12 @@ export default class API {
 
   /**
    * @description Послать данные для обновления
-   * @param {*} id Данные задачи
-   * @param {*} data Данные задачи
+   * @param {String} id ID точки маршрута
+   * @param {Object} data Данные точки маршрута
    * @return {JSON} Ответ сервера
    * @memberof API
    */
-  update({id, data}) {
+  updatePoint({id, data}) {
     return this._load({
       url: `points/${id}`,
       method: this._METHODS.PUT,
@@ -102,11 +102,29 @@ export default class API {
    * @return {Promise}
    * @memberof API
    */
-  delete({id}) {
+  deletePoint({id}) {
     return this._load({
       url: `points/${id}`,
       method: this._METHODS.DELETE
     });
+  }
+
+  /**
+   * @description Синхронизировать точки маршрута
+   * @param {Array} {points} Массив точек для синхронизации
+   * @return {JSON}
+   * @memberof API
+   */
+  syncPoints({points}) {
+    return this._load({
+      url: `points/sync`,
+      method: this._METHODS.POST,
+      body: JSON.stringify(points),
+      headers: new Headers({
+        'Content-Type': `application/json`
+      })
+    })
+      .then(this._toJSON);
   }
 
   /**
