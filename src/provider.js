@@ -23,18 +23,7 @@ export default class Provider {
    * @memberof Provider
    */
   getOffers() {
-    if (this._isOnline()) {
-      return this._api.getOffers()
-        .then((offers) => {
-          offers.forEach(this._putToStorage);
-        });
-    }
-
-    const rawOffersMap = this._store.getAll();
-    const rawOffers = this._objectToArray(rawOffersMap);
-    const offers = ModelItem.parseDatas(rawOffers);
-
-    return Promise.resolve(offers);
+    return this._api.getOffers();
   }
 
   /**
@@ -47,6 +36,8 @@ export default class Provider {
       return this._api.getPoints()
         .then((points) => {
           points.forEach(this._putToStorage);
+
+          return points;
         });
     }
 
@@ -63,15 +54,7 @@ export default class Provider {
    * @memberof Provider
    */
   getDestinations() {
-    if (this._isOnline()) {
-      return this._api.getDestinations();
-    }
-
-    const rawDestinationsMap = this._store.getAll();
-    const rawDestinations = this._objectToArray(rawDestinationsMap);
-    const destinations = ModelItem.parseDatas(rawDestinations);
-
-    return Promise.resolve(destinations);
+    return this._api.getDestinations();
   }
 
   /**
@@ -111,7 +94,7 @@ export default class Provider {
     const point = ModelItem.parseData(data);
 
     this._needSync = true;
-    this._putToStorage(data);
+    this._putToStorage(point);
 
     return Promise.resolve(point);
   }
@@ -167,5 +150,20 @@ export default class Provider {
    */
   _objectToArray(object) {
     return Object.keys(object).map((id) => object[id]);
+  }
+
+  /**
+   * @description Добавить данные в хранилище
+   * @param {ModelItem} point Данные точки маршрута
+   * @return {ModelItem} Данные точки маршрута
+   * @memberof Provider
+   */
+  _putToStorage(point) {
+    this._store.setItem({
+      id: point.id,
+      data: point.toRAW()
+    });
+
+    return point;
   }
 }
