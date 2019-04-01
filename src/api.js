@@ -110,6 +110,24 @@ export default class API {
   }
 
   /**
+   * @description Синхронизировать точки маршрута
+   * @param {Array} {points} Массив точек для синхронизации
+   * @return {JSON}
+   * @memberof API
+   */
+  syncPoints({points}) {
+    return this._load({
+      url: `points/sync`,
+      method: this._METHODS.POST,
+      body: JSON.stringify(points),
+      headers: new Headers({
+        'Content-Type': `application/json`
+      })
+    })
+      .then(this._toJSON);
+  }
+
+  /**
    * @description Сделать запрос
    * @param {Object} params Параметры запроса
    * @param {String} params.url
