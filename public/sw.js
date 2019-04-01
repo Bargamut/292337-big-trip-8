@@ -1,6 +1,6 @@
 const CACHE_NAME = `STATIC_V1.0`;
 
-const putToWSCache = (evt, response) => {
+const putToSWCache = (evt, response) => {
   caches.open(CACHE_NAME)
     .then((cache) => cache.put(evt.request, response));
 };
@@ -24,9 +24,9 @@ self.addEventListener(`install`, (evt) => {
 
 self.addEventListener(`fetch`, (evt) => {
   evt.respondWith(
-      fetch(evt.pequest)
+      fetch(evt.request)
         .then((response) => {
-          putToWSCache(evt, response.clone());
+          putToSWCache(evt, response.clone());
 
           return response.clone();
         })
