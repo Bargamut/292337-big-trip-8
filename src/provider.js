@@ -1,7 +1,20 @@
+import ModelItem from './model-item';
+
 export default class Provider {
-  constructor({api, store}) {
+  /**
+   * Конструктор класса Provider
+   * @param {API} api Инстанс API работы с данными
+   * @param {Sotorage} store Инстанс Store хранилища
+   * @param {Function} generateId Метод генерации ID записи
+   * @memberof Provider
+   */
+  constructor({api, store, generateId}) {
     this._api = api;
     this._store = store;
+    this._generateId = generateId;
+    this._needSync = false;
+
+    this._putToStorage = this._putToStorage.bind(this);
   }
 
   /**
@@ -10,7 +23,18 @@ export default class Provider {
    * @memberof Provider
    */
   getOffers() {
-    return this._api.getOffers();
+    if (this._isOnline()) {
+      return this._api.getOffers()
+        .then((offers) => {
+          offers.forEach(this._putToStorage);
+        });
+    }
+
+    const rawOffersMap = this._store.getAll();
+    const rawOffers = this._objectToArray(rawOffersMap);
+    const offers = ModelItem.parseDatas(rawOffers);
+
+    return Promise.resolve(offers);
   }
 
   /**
@@ -19,7 +43,18 @@ export default class Provider {
    * @memberof Provider
    */
   getPoints() {
-    return this._api.getPoints();
+    if (this._isOnline()) {
+      return this._api.getPoints()
+        .then((points) => {
+          points.forEach(this._putToStorage);
+        });
+    }
+
+    const rawPointsMap = this._store.getAll();
+    const rawPoints = this._objectToArray(rawPointsMap);
+    const points = ModelItem.parseDatas(rawPoints);
+
+    return Promise.resolve(points);
   }
 
   /**
@@ -28,7 +63,15 @@ export default class Provider {
    * @memberof Provider
    */
   getDestinations() {
-    return this._api.getDestinations();
+    if (this._isOnline()) {
+      return this._api.getDestinations();
+    }
+
+    const rawDestinationsMap = this._store.getAll();
+    const rawDestinations = this._objectToArray(rawDestinationsMap);
+    const destinations = ModelItem.parseDatas(rawDestinations);
+
+    return Promise.resolve(destinations);
   }
 
   /**
@@ -38,7 +81,18 @@ export default class Provider {
    * @memberof Provider
    */
   createPoint({point}) {
-    return this._api.createPoint({point});
+    if (this._isOnline()) {
+      return this._api.createPoint({point})
+        .then(this._putToStorage);
+    }
+
+    point.id = this._generateId();
+    point = ModelItem.parseData(point);
+
+    this._needSync = true;
+    this._putToStorage(point);
+
+    return Promise.resolve(point);
   }
 
   /**
@@ -49,7 +103,17 @@ export default class Provider {
    * @memberof Provider
    */
   updatePoint({id, data}) {
-    return this._api.updatePoint({id, data});
+    if (this._isOnline()) {
+      return this._api.updatePoint({id, data})
+        .then(this._putToStorage);
+    }
+
+    const point = ModelItem.parseData(data);
+
+    this._needSync = true;
+    this._putToStorage(data);
+
+    return Promise.resolve(point);
   }
 
   /**
@@ -59,6 +123,49 @@ export default class Provider {
    * @memberof Provider
    */
   deletePoint({id}) {
-    return this._api.deletePoint({id});
+    if (this._isOnline()) {
+      return this._api.deletePoint({id})
+        .thsn(() => {
+          this._store.removeItem({id});
+        });
+    }
+
+    this._needSync = true;
+    this._store.removeItem({id});
+
+    return Promise.resolve(id);
+  }
+
+  /**
+   * @description Синхронизировать данные
+   * @return {JSON}
+   * @memberof Provider
+   */
+  syncPoints() {
+    return this._api.syncPoints({
+      points: this._objectToArray(this._store.getAll())
+    })
+    .then(() => {
+      this._needSync = false;
+    });
+  }
+
+  /**
+   * @description Проверить статус подключения
+   * @return {Boolean}
+   * @memberof Provider
+   */
+  _isOnline() {
+    return window.navigator.onLine;
+  }
+
+  /**
+   * @description Преобразовать объект данныхв массив
+   * @param {Object} object Объект данных
+   * @return {Array} Массив данных
+   * @memberof Provider
+   */
+  _objectToArray(object) {
+    return Object.keys(object).map((id) => object[id]);
   }
 }
