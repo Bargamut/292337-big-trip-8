@@ -13,7 +13,9 @@ self.addEventListener(`install`, (evt) => {
         `./index.html`,
         `./bundle.js`,
         `./css/normalize.css`,
-        `./css/main.css`
+        `./css/main.css`,
+        `./img/star.svg`,
+        `./img/star--check.svg`
       ]);
     });
 
