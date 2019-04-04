@@ -143,8 +143,6 @@ export default class API {
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
       .then(this._checkStatus)
       .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.log(`Fetch error: ${err}`);
         throw err;
       });
   }
