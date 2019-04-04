@@ -257,12 +257,11 @@ export default class DayItemEdit extends Component {
     const nodeDestination = this._element.querySelector(`#destination`);
 
     const timeConfig = {
-      enableTime: true,
-      altInput: true,
-      altFormat: `H:i`,
-      dateFormat: `U`,
-      // eslint-disable-next-line camelcase
-      time_24hr: true
+      'enableTime': true,
+      'altInput': true,
+      'altFormat': `H:i`,
+      'dateFormat': `U`,
+      'time_24hr': true
     };
 
     nodeDestination.addEventListener(`change`, this._onChangeDestination);
