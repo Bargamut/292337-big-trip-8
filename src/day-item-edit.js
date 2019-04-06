@@ -37,8 +37,10 @@ export default class DayItemEdit extends Component {
 
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onClickDelete = this._onClickDelete.bind(this);
+    this._onPressEscape = this._onPressEscape.bind(this);
     this._onSubmit = null;
     this._onDelete = null;
+    this._onEscape = null;
 
     this._isFavorite = false;
 
@@ -143,6 +145,15 @@ export default class DayItemEdit extends Component {
    */
   set onDelete(callback) {
     this._onDelete = callback;
+  }
+
+  /**
+   * @description Сеттер функции-обработчика выхода из режима редактирования
+   * @param {Function} callback Функция-обработчик
+   * @memberof DayItemEdit
+   */
+  set onEscape(callback) {
+    this._onEscape = callback;
   }
 
   /**
@@ -270,6 +281,8 @@ export default class DayItemEdit extends Component {
     nodeItemForm.addEventListener(`reset`, this._onClickDelete);
     nodeItemFavorite.addEventListener(`click`, this._onChangeFavorite);
 
+    document.addEventListener(`keyup`, this._onPressEscape);
+
     const startInstanse = flatpickr(
         nodeTimeStart,
         Object.assign({}, timeConfig, {
@@ -308,6 +321,8 @@ export default class DayItemEdit extends Component {
     nodeItemForm.removeEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.removeEventListener(`reset`, this._onClickDelete);
     nodeItemFavorite.removeEventListener(`click`, this._onChangeFavorite);
+
+    document.removeEventListener(`keyup`, this._onPressEscape);
 
     this._nodeItemForm = null;
   }
@@ -511,6 +526,19 @@ export default class DayItemEdit extends Component {
 
     if (this._onDelete instanceof Function) {
       this._onDelete({id: this._id});
+    }
+  }
+
+  /**
+   * @description Обработчик выхода из режима редактирования
+   * @param {Event} evt - объект события
+   * @memberof DayItemEdit
+   */
+  _onPressEscape(evt) {
+    evt.preventDefault();
+
+    if (this._onEscape instanceof Function) {
+      this._onEscape(evt);
     }
   }
 

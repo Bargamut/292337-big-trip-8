@@ -14,7 +14,7 @@ import './stat';
 let currentPoints = [];
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23214g=`;
+const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23215g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 const POINTS_STORE_KEY = `points-store-key`;
 
@@ -234,6 +234,16 @@ const renderTripDayItems = (dayItems = []) => {
           componentDayItemEdit.unblock(`delete`);
           throw err;
         });
+    };
+
+    componentDayItemEdit.onEscape = (evt) => {
+      if (evt.key !== `Escape`) {
+        return;
+      }
+
+      componentDayItem.render();
+      nodeTripDayItems.replaceChild(componentDayItem.element, componentDayItemEdit.element);
+      componentDayItemEdit.unrender();
     };
 
     docFragmentTripDayItems.appendChild(
