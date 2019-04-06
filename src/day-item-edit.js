@@ -42,7 +42,7 @@ export default class DayItemEdit extends Component {
     this._onDelete = null;
     this._onEscape = null;
 
-    this._isFavorite = false;
+    this._isFavorite = item.isFavorite;
 
     this._onChangeType = this._onChangeType.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
@@ -251,6 +251,7 @@ export default class DayItemEdit extends Component {
       'date-start': (value) => (target.time.since = value * MILLISECONDS),
       'date-end': (value) => (target.time.to = value * MILLISECONDS),
       'price': (value) => (target.price = parseInt(value, 10)),
+      'favorite': (value) => (target.isFavorite = value),
       'offer': (value) => (target.offers.get(value).accepted = true)
     };
   }
@@ -435,6 +436,7 @@ export default class DayItemEdit extends Component {
     const tempEntry = {
       type: ``,
       icon: ``,
+      isFavorite: false,
       destination: ``,
       caption: ``,
       time: {

@@ -13,6 +13,7 @@ export default class ModelItem {
    */
   constructor(data) {
     this.id = data[`id`];
+    this.isFavorite = data[`is_favorite`] || false;
     this.type = data[`type`] || mapItemsTypes.keys().next().value;
     this.destination = data[`destination`] ? data[`destination`].name : ``;
     this.description = data[`destination`] ? data[`destination`].description : ``;
@@ -42,6 +43,7 @@ export default class ModelItem {
   toRAW() {
     return {
       'id': this.id,
+      'is_favorite': this.isFavorite,
       'type': this.type,
       'destination': {
         name: this.destination,
