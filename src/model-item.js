@@ -13,22 +13,22 @@ export default class ModelItem {
    */
   constructor(data) {
     this.id = data[`id`];
-    this.type = data[`type`];
-    this.destination = data[`destination`].name;
-    this.description = data[`destination`].description;
-    this.pictures = data[`destination`].pictures;
+    this.type = data[`type`] || mapItemsTypes.keys().next().value;
+    this.destination = data[`destination`] ? data[`destination`].name : ``;
+    this.description = data[`destination`] ? data[`destination`].description : ``;
+    this.pictures = data[`destination`] ? data[`destination`].pictures : [];
     this.time = {
-      since: data[`date_from`],
-      to: data[`date_to`]
+      since: data[`date_from`] || Date.now(),
+      to: data[`date_to`] || Date.now()
     };
-    this.price = data[`base_price`];
-    this.offers = data[`offers`].reduce((map, offer) => {
+    this.price = data[`base_price`] || 0;
+    this.offers = (data[`offers`] || []).reduce((map, offer) => {
       map.set(offer.title, offer);
 
       return map;
     }, new Map());
 
-    const itemType = mapItemsTypes.get(data[`type`]);
+    const itemType = mapItemsTypes.get(this.type);
 
     this.icon = itemType.icon;
     this.caption = itemType.caption;

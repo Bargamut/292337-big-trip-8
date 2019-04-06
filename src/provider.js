@@ -108,7 +108,7 @@ export default class Provider {
   deletePoint({id}) {
     if (this._isOnline()) {
       return this._api.deletePoint({id})
-        .thsn(() => {
+        .then(() => {
           this._store.removeItem({id});
         });
     }

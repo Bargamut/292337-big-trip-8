@@ -1,6 +1,7 @@
 import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
+import ModelItem from './model-item';
 import API from './api';
 import Provider from './provider';
 import Store from './store';
@@ -13,7 +14,7 @@ import './stat';
 let currentPoints = [];
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf2328g=`;
+const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23214g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 const POINTS_STORE_KEY = `points-store-key`;
 
@@ -74,6 +75,46 @@ document.addEventListener(`DOMContentLoaded`, () => {
     });
 
   renderFilters(pointsFilters);
+
+  document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, () => {
+    const nodeTripPoints = document.querySelector(`.trip-points`);
+    const nodeTripDayItems = document.querySelector(`.trip-day__items`);
+    const item = ModelItem.parseData({});
+    const componentNewDayItem = new DayItem(item, mapOffers);
+    const componentNewDayItemEdit = new DayItemEdit(
+        item,
+        mapDestinations,
+        mapItemsTypes,
+        mapOffers
+    );
+
+    nodeTripPoints.insertAdjacentElement(
+        `afterbegin`,
+        componentNewDayItemEdit.render()
+    );
+
+    componentNewDayItemEdit.onSubmit = (newData) => {
+      componentNewDayItemEdit.block(`submit`);
+      Object.assign(item, newData);
+
+      provider.createPoint({
+        point: item.toRAW()
+      })
+        .then((data) => {
+          componentNewDayItem.update(data);
+          componentNewDayItem.render();
+          nodeTripDayItems.appendChild(componentNewDayItem.element);
+          nodeTripPoints.removeChild(componentNewDayItemEdit.element);
+          componentNewDayItemEdit.unblock(`submit`);
+          componentNewDayItemEdit.unrender();
+        })
+        .catch((err) => {
+          componentNewDayItemEdit.shake();
+          componentNewDayItemEdit.unblock(`submit`);
+          throw err;
+        });
+    };
+  });
 });
 
 /**
@@ -148,17 +189,17 @@ const renderTripDayItems = (dayItems = []) => {
       return;
     }
 
-    const componendDayItem = new DayItem(item, mapOffers);
-    const componendDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
+    const componentDayItem = new DayItem(item, mapOffers);
+    const componentDayItemEdit = new DayItemEdit(item, mapDestinations, mapItemsTypes, mapOffers);
 
-    componendDayItem.onEdit = () => {
-      componendDayItemEdit.render();
-      nodeTripDayItems.replaceChild(componendDayItemEdit.element, componendDayItem.element);
-      componendDayItem.unrender();
+    componentDayItem.onEdit = () => {
+      componentDayItemEdit.render();
+      nodeTripDayItems.replaceChild(componentDayItemEdit.element, componentDayItem.element);
+      componentDayItem.unrender();
     };
 
-    componendDayItemEdit.onSubmit = (newData) => {
-      componendDayItemEdit.block(`submit`);
+    componentDayItemEdit.onSubmit = (newData) => {
+      componentDayItemEdit.block(`submit`);
       Object.assign(item, newData);
 
       provider.updatePoint({
@@ -166,37 +207,37 @@ const renderTripDayItems = (dayItems = []) => {
         data: item.toRAW()
       })
         .then((data) => {
-          componendDayItem.update(data);
-          componendDayItem.render();
-          nodeTripDayItems.replaceChild(componendDayItem.element, componendDayItemEdit.element);
-          componendDayItemEdit.unblock(`submit`);
-          componendDayItemEdit.unrender();
+          componentDayItem.update(data);
+          componentDayItem.render();
+          nodeTripDayItems.replaceChild(componentDayItem.element, componentDayItemEdit.element);
+          componentDayItemEdit.unblock(`submit`);
+          componentDayItemEdit.unrender();
         })
         .catch((err) => {
-          componendDayItemEdit.shake();
-          componendDayItemEdit.unblock(`submit`);
+          componentDayItemEdit.shake();
+          componentDayItemEdit.unblock(`submit`);
           throw err;
         });
     };
 
-    componendDayItemEdit.onDelete = ({id}) => {
-      componendDayItemEdit.block(`delete`);
+    componentDayItemEdit.onDelete = ({id}) => {
+      componentDayItemEdit.block(`delete`);
 
       provider.deletePoint({id})
         .then(() => {
-          nodeTripDayItems.removeChild(componendDayItemEdit.element);
-          componendDayItemEdit.unrender();
+          nodeTripDayItems.removeChild(componentDayItemEdit.element);
+          componentDayItemEdit.unrender();
         })
         .then(() => provider.getPoints())
         .catch((err) => {
-          componendDayItemEdit.shake();
-          componendDayItemEdit.unblock(`delete`);
+          componentDayItemEdit.shake();
+          componentDayItemEdit.unblock(`delete`);
           throw err;
         });
     };
 
     docFragmentTripDayItems.appendChild(
-        componendDayItem.render()
+        componentDayItem.render()
     );
   });
 
