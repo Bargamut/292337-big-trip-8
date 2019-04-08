@@ -3,6 +3,9 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import _ from 'lodash';
 
+const MILLISECONDS = 1000;
+const ANIMATION_TIMEOUT = 600;
+
 /**
  * @description Класс компонента события маршрута
  * @export
@@ -20,9 +23,6 @@ export default class DayItemEdit extends Component {
    */
   constructor(item, dataDestinations, dataItemsTypes, dataOffers) {
     super();
-
-    this._MILLISECONDS = 1000;
-    this._ANIMATION_TIMEOUT = 600;
 
     this._id = item.id;
     this._type = item.type;
@@ -222,13 +222,13 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   shake() {
-    this._element.style.animation = `shake ${this._ANIMATION_TIMEOUT / 1000}s`;
+    this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
     this._element.style.border = `1px solid red`;
 
     setTimeout(() => {
       this._element.style.animation = ``;
       this._element.style.border = ``;
-    }, this._ANIMATION_TIMEOUT);
+    }, ANIMATION_TIMEOUT);
   }
 
   /**
@@ -248,8 +248,8 @@ export default class DayItemEdit extends Component {
         target.caption = dataItem.caption;
       },
       'destination': (value) => (target.destination = value),
-      'date-start': (value) => (target.time.since = value * this._MILLISECONDS),
-      'date-end': (value) => (target.time.to = value * this._MILLISECONDS),
+      'date-start': (value) => (target.time.since = value * MILLISECONDS),
+      'date-end': (value) => (target.time.to = value * MILLISECONDS),
       'price': (value) => (target.price = parseInt(value, 10)),
       'favorite': (value) => (target.isFavorite = value),
       'offer': (value) => (target.offers.get(value).accepted = true)
