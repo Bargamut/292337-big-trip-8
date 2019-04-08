@@ -1,6 +1,7 @@
 import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
+import TripDay from './trip-day';
 import ModelItem from './model-item';
 import API from './api';
 import Provider from './provider';
@@ -10,11 +11,12 @@ import {
   mapItemsTypes
 } from './make-data';
 import './stat';
+import moment from 'moment';
 
-let currentPoints = [];
+let mapPointsByDays = [];
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23215g=`;
+const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23216g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 const POINTS_STORE_KEY = `points-store-key`;
 
@@ -48,9 +50,9 @@ document.addEventListener(`DOMContentLoaded`, () => {
   .then((data) => {
     processLoadingStatus();
 
-    currentPoints = data;
+    mapPointsByDays = makeMapDays(data);
 
-    renderTripDayItems(currentPoints);
+    renderTripDays(mapPointsByDays);
   }).catch(() => {
     processLoadingStatus(`error`);
   });
@@ -126,9 +128,9 @@ const renderFilters = (tripPointsFilters = []) => {
   const componentFilter = new Filter(tripPointsFilters);
 
   componentFilter.onClick = (evt) => {
-    const filteredDayItems = filterDayItems(currentPoints, evt.target.id);
+    const filteredDayItems = filterDayItems(mapPointsByDays, evt.target.id);
 
-    renderTripDayItems(filteredDayItems);
+    renderTripDays(filteredDayItems);
   };
 
   componentFilter.render();
@@ -176,13 +178,57 @@ const processLoadingStatus = (status) => {
   }
 };
 
+const makeMapDays = (dayItems = []) => {
+  const days = dayItems.reduce((mapDays, item) => {
+    const key = moment(item.time.since).format(`MMM D`);
+
+    if (mapDays.has(key)) {
+      mapDays.get(key).push(item);
+    } else {
+      mapDays.set(key, [item]);
+    }
+
+    return mapDays;
+  }, new Map());
+
+  return days;
+};
+
+/**
+ * @description Отрисовка списка событий маршрута
+ * @param {Map} [mapDays=new Map()] Map дней маршрута
+ */
+const renderTripDays = (mapDays = new Map()) => {
+  const docFragmentTripDays = document.createDocumentFragment();
+  const nodeTripPoints = document.querySelector(`.trip-points`);
+
+  [...mapDays].forEach(([day, points], index) => {
+    const componentTripDay = new TripDay({
+      date: day,
+      index: index + 1
+    });
+
+    componentTripDay.render();
+    docFragmentTripDays.appendChild(componentTripDay.element);
+
+    renderTripDayItems({
+      dayItems: points,
+      nodeTripDay: componentTripDay.element
+    });
+  });
+
+  nodeTripPoints.innerHTML = ``;
+  nodeTripPoints.appendChild(docFragmentTripDays);
+};
+
 /**
  * @description Отрисовка списка событий маршрута
  * @param {Array} [dayItems=[]] Массив событий маршрута
+ * @param {Node} nodeTripDay DOM-элемент дня маршрута
  */
-const renderTripDayItems = (dayItems = []) => {
-  const nodeTripDayItems = document.querySelector(`.trip-day__items`);
+const renderTripDayItems = ({dayItems = [], nodeTripDay}) => {
   const docFragmentTripDayItems = document.createDocumentFragment();
+  const nodeTripDayItems = nodeTripDay.querySelector(`.trip-day__items`);
 
   dayItems.forEach((item) => {
     if (item === null) {
