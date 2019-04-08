@@ -140,25 +140,35 @@ const renderFilters = (tripPointsFilters = []) => {
 
 /**
  * @description Отфильтровать события маршрута
- * @param {Array} dayItems События маршрута
+ * @param {Map} mapDayItems Map событий маршрута по дням
  * @param {String} filterId ID фильтра
- * @return {Array} Отфильтрованный массив событий маршрута
+ * @return {Map} Отфильтрованный Map дней событий маршрута
  */
-const filterDayItems = (dayItems, filterId) => {
+const filterDayItems = (mapDayItems, filterId) => {
+  let filterCallback;
+
   switch (filterId) {
     case `filter-future`:
-      return dayItems.filter((item) =>
+      filterCallback = (item) =>
         item !== null &&
-        item.time.since > Date.now()
-      );
+        item.time.since > Date.now();
+      break;
     case `filter-past`:
-      return dayItems.filter((item) =>
+      filterCallback = (item) =>
         item !== null &&
-        item.time.to, `HH:mm` < Date.now()
-      );
+        item.time.to < Date.now();
+      break;
     case `filter-everything`:
-    default: return dayItems;
+    default: return mapDayItems;
   }
+
+  return [...mapDayItems].reduce((filteredMap, [key, dayItems]) => {
+    const filteredItems = dayItems.filter(filterCallback);
+
+    filteredMap.set(key, filteredItems);
+
+    return filteredMap;
+  }, new Map());
 };
 
 /**
@@ -195,7 +205,7 @@ const makeMapDays = (dayItems = []) => {
 };
 
 /**
- * @description Отрисовка списка событий маршрута
+ * @description Отрисовка списка дней событий маршрута
  * @param {Map} [mapDays=new Map()] Map дней маршрута
  */
 const renderTripDays = (mapDays = new Map()) => {
@@ -203,6 +213,10 @@ const renderTripDays = (mapDays = new Map()) => {
   const nodeTripPoints = document.querySelector(`.trip-points`);
 
   [...mapDays].forEach(([day, points], index) => {
+    if (points.length === 0) {
+      return;
+    }
+
     const componentTripDay = new TripDay({
       date: day,
       index: index + 1
@@ -222,7 +236,7 @@ const renderTripDays = (mapDays = new Map()) => {
 };
 
 /**
- * @description Отрисовка списка событий маршрута
+ * @description Отрисовка списка событий маршрута за день
  * @param {Array} [dayItems=[]] Массив событий маршрута
  * @param {Node} nodeTripDay DOM-элемент дня маршрута
  */
