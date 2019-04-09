@@ -13,10 +13,10 @@ import {
 import './stat';
 import moment from 'moment';
 
-let mapPointsByDays = [];
+let mapPointsByDays = new Map();
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23216g=`;
+const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23217g=`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 const POINTS_STORE_KEY = `points-store-key`;
 
@@ -47,15 +47,10 @@ document.addEventListener(`DOMContentLoaded`, () => {
   processLoadingStatus(`loading`);
 
   provider.getPoints()
-  .then((data) => {
-    processLoadingStatus();
-
-    mapPointsByDays = makeMapDays(data);
-
-    renderTripDays(mapPointsByDays);
-  }).catch(() => {
-    processLoadingStatus(`error`);
-  });
+    .then(refreshTripEvents)
+    .catch(() => {
+      processLoadingStatus(`error`);
+    });
 
   api.getOffers()
     .then((data) => {
@@ -80,9 +75,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
   document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, () => {
     const nodeTripPoints = document.querySelector(`.trip-points`);
-    const nodeTripDayItems = document.querySelector(`.trip-day__items`);
     const item = ModelItem.parseData({});
-    const componentNewDayItem = new DayItem(item, mapOffers);
     const componentNewDayItemEdit = new DayItemEdit(
         item,
         mapDestinations,
@@ -103,12 +96,18 @@ document.addEventListener(`DOMContentLoaded`, () => {
         point: item.toRAW()
       })
         .then((data) => {
-          componentNewDayItem.update(data);
-          componentNewDayItem.render();
-          nodeTripDayItems.appendChild(componentNewDayItem.element);
-          nodeTripPoints.removeChild(componentNewDayItemEdit.element);
+          const keyDate = moment(data.time.since).format(`MMM D`);
+
           componentNewDayItemEdit.unblock(`submit`);
           componentNewDayItemEdit.unrender();
+
+          if (mapPointsByDays.has(keyDate)) {
+            mapPointsByDays.get(keyDate).push(data);
+          } else {
+            mapPointsByDays.set(keyDate, [data]);
+          }
+
+          renderTripDays(mapPointsByDays);
         })
         .catch((err) => {
           componentNewDayItemEdit.shake();
@@ -188,6 +187,11 @@ const processLoadingStatus = (status) => {
   }
 };
 
+/**
+ * @description Создать Map дней с событиями
+ * @param {Array} [dayItems=[]] Массив событий маршрута
+ * @return {Map} Map дней маршрута с событиями
+ */
 const makeMapDays = (dayItems = []) => {
   const days = dayItems.reduce((mapDays, item) => {
     const key = moment(item.time.since).format(`MMM D`);
@@ -202,6 +206,18 @@ const makeMapDays = (dayItems = []) => {
   }, new Map());
 
   return days;
+};
+
+/**
+ * @description Обновить список точек маршрута по дням
+ * @param {Array} data Данные точек маршрута
+ */
+const refreshTripEvents = (data) => {
+  processLoadingStatus();
+
+  mapPointsByDays = makeMapDays(data);
+
+  renderTripDays(mapPointsByDays);
 };
 
 /**
@@ -288,11 +304,15 @@ const renderTripDayItems = ({dayItems = [], nodeTripDay}) => {
           nodeTripDayItems.removeChild(componentDayItemEdit.element);
           componentDayItemEdit.unrender();
         })
-        .then(() => provider.getPoints())
         .catch((err) => {
           componentDayItemEdit.shake();
           componentDayItemEdit.unblock(`delete`);
           throw err;
+        })
+        .then(() => provider.getPoints())
+        .then(refreshTripEvents)
+        .catch(() => {
+          processLoadingStatus(`error`);
         });
     };
 

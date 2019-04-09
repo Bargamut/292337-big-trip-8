@@ -106,13 +106,19 @@ export default class DayItem extends Component {
   _countDuration() {
     const a = moment(this._time.since);
     const b = moment(this._time.to);
-    const duration = moment.utc(
-        moment.duration(
-            b.diff(a)
-        ).asMilliseconds()
-    );
+    const duration = moment.duration(b.diff(a));
 
-    return duration.format(`H[h] m[m]`);
+    let template = `${duration.hours() ? `HH[h]` : ``} mm[m]`.trim();
+
+    if (duration.days()) {
+      const days = duration.days() > 10
+        ? duration.days()
+        : `0${duration.days()}`;
+
+      template = `${days}[d] ${template}`;
+    }
+
+    return moment.utc(duration.asMilliseconds()).format(template);
   }
 
   /**
