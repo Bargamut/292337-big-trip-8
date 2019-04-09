@@ -438,6 +438,8 @@ export default class DayItemEdit extends Component {
       icon: ``,
       isFavorite: false,
       destination: ``,
+      description: this._description,
+      pictures: this._pictures,
       caption: ``,
       time: {
         since: 0,

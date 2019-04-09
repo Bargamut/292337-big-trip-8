@@ -175,7 +175,7 @@ const filterDayItems = (mapDayItems, filterId) => {
  * @param {String} status Текущий статус загрузки данных
  */
 const processLoadingStatus = (status) => {
-  const nodeTripDayItems = document.querySelector(`.trip-day__items`);
+  const nodeTripDayItems = document.querySelector(`.trip-points`);
 
   switch (status) {
     case `loading`: nodeTripDayItems.innerHTML = `Loading route...`; break;
