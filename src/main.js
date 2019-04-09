@@ -13,6 +13,10 @@ import {
 import './stat';
 import moment from 'moment';
 
+// TODO: Рассчитаем итоги
+// TODO: Ещё немного статистики
+// TODO: Найти и отсортировать
+
 let mapPointsByDays = new Map();
 const mapOffers = new Map();
 const mapDestinations = new Map();
