@@ -63,8 +63,8 @@ export default class TripTotalCost extends Component {
   /**
    * @description Расчитать общую стоимость по точке маршрута
    * @static
-   * @param {number} totalCost Общая стоимость
-   * @param {Object} point Объект описания точки маршрута
+   * @param {Number} totalCost Общая стоимость
+   * @param {ModelItem} point Объект описания точки маршрута
    * @return {Number} Общая стоимость по точке маршрута
    * @memberof TripTotalCost
    */
