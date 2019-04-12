@@ -2,6 +2,7 @@ import Filter from './make-filter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
 import TripDay from './trip-day';
+import TripTotalCost from './trip-total-cost';
 import ModelItem from './model-item';
 import API from './api';
 import Provider from './provider';
@@ -13,7 +14,6 @@ import {
 import './stat';
 import moment from 'moment';
 
-// TODO: Рассчитаем итоги
 // TODO: Ещё немного статистики
 // TODO: Найти и отсортировать
 
@@ -37,6 +37,7 @@ const provider = new Provider({
   store,
   generateId: () => (Date.now() + Math.random())
 });
+const componentTripTotalCost = new TripTotalCost();
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(/^\[OFFLINE\]\s(.*)/, `$1`);
@@ -120,6 +121,8 @@ document.addEventListener(`DOMContentLoaded`, () => {
         });
     };
   });
+
+  renderTripTotalCost();
 });
 
 /**
@@ -192,6 +195,15 @@ const processLoadingStatus = (status) => {
 };
 
 /**
+ * @description Рассчитать общую стоимость путешествия
+ */
+const calculateTotalPrice = () => {
+  componentTripTotalCost.update(
+      provider.getPointsFromStore()
+  );
+};
+
+/**
  * @description Создать Map дней с событиями
  * @param {Array} [dayItems=[]] Массив событий маршрута
  * @return {Map} Map дней маршрута с событиями
@@ -225,6 +237,17 @@ const refreshTripEvents = (data) => {
 };
 
 /**
+ * @description Отрисовать компонент общей стоимости путешествия
+ */
+const renderTripTotalCost = () => {
+  const nodeTripTotal = document.querySelector(`.trip__total`);
+
+  componentTripTotalCost.render();
+
+  nodeTripTotal.parentNode.replaceChild(componentTripTotalCost.element, nodeTripTotal);
+};
+
+/**
  * @description Отрисовка списка дней событий маршрута
  * @param {Map} [mapDays=new Map()] Map дней маршрута
  */
@@ -253,6 +276,8 @@ const renderTripDays = (mapDays = new Map()) => {
 
   nodeTripPoints.innerHTML = ``;
   nodeTripPoints.appendChild(docFragmentTripDays);
+
+  calculateTotalPrice();
 };
 
 /**
@@ -292,6 +317,8 @@ const renderTripDayItems = ({dayItems = [], nodeTripDay}) => {
           nodeTripDayItems.replaceChild(componentDayItem.element, componentDayItemEdit.element);
           componentDayItemEdit.unblock(`submit`);
           componentDayItemEdit.unrender();
+
+          calculateTotalPrice();
         })
         .catch((err) => {
           componentDayItemEdit.shake();

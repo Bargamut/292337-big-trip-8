@@ -41,11 +41,22 @@ export default class Provider {
         });
     }
 
-    const rawPointsMap = this._store.getAll();
-    const rawPoints = Provider.objectToArray(rawPointsMap);
-    const points = ModelItem.parseDatas(rawPoints);
+    const points = this.getPointsFromStore();
 
     return Promise.resolve(points);
+  }
+
+  /**
+   * @description Запросит данные по точкам маршрута
+   * из локального хранилища
+   * @return {array} Массив данных по точкам маршрута
+   * @memberof Provider
+   */
+  getPointsFromStore() {
+    const rawPointsMap = this._store.getAll();
+    const rawPoints = Provider.objectToArray(rawPointsMap);
+
+    return ModelItem.parseDatas(rawPoints);
   }
 
   /**
