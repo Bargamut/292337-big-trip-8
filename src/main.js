@@ -8,28 +8,25 @@ import API from './api';
 import Provider from './provider';
 import Store from './store';
 import {
+  SERVER_DATA,
   pointsFilters,
   mapItemsTypes
 } from './make-data';
 import './stat';
 import moment from 'moment';
 
-// TODO: Ещё немного статистики
 // TODO: Найти и отсортировать
 
 let mapPointsByDays = new Map();
 const mapOffers = new Map();
 const mapDestinations = new Map();
-const AUTHORIZATION = `Basic gKJglhKGkghKHGSFS{FOSKFJH72fhf23217g=`;
-const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
-const POINTS_STORE_KEY = `points-store-key`;
 
 const api = new API({
-  endPoint: END_POINT,
-  authorization: AUTHORIZATION
+  endPoint: SERVER_DATA.END_POINT,
+  authorization: SERVER_DATA.AUTHORIZATION
 });
 const store = new Store({
-  keyStorage: POINTS_STORE_KEY,
+  keyStorage: SERVER_DATA.POINTS_STORE_KEY,
   storage: localStorage
 });
 const provider = new Provider({

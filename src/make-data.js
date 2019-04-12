@@ -1,3 +1,9 @@
+export const SERVER_DATA = {
+  AUTHORIZATION: `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`,
+  END_POINT: `https://es8-demo-srv.appspot.com/big-trip`,
+  POINTS_STORE_KEY: `points-store-key`
+};
+
 export const mapItemsTypes = new Map([
   [`bus`, {icon: `🚌`, group: `transport`, caption: `Bus to `}],
   [`train`, {icon: `🚂`, group: `transport`, caption: `Train to `}],
