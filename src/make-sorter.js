@@ -20,7 +20,7 @@ export default class Sorter extends Component {
   }
 
   /**
-   * @description Сеттер обработчика клика по фильтру
+   * @description Сеттер обработчика клика по сортеру
    * @param {Function} callback Функция-обработчик
    * @memberof Sorter
    */
@@ -44,8 +44,8 @@ export default class Sorter extends Component {
   }
 
   /**
-   * @description Гененировать шаблон фильтра
-   * @return {String} HTML-шаблон фильтра
+   * @description Гененировать шаблон сортера
+   * @return {String} HTML-шаблон сортера
    * @memberof Sorter
    */
   _generateSortersTemplate() {

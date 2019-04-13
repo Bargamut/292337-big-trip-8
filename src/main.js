@@ -145,8 +145,8 @@ const renderFilters = (tripPointsFilters = []) => {
 };
 
 /**
- * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Array} [tripPointsSorters=[]] Объект описания фильтров
+ * @description Отрисовка сортеров точек маршрута с навешиванием обработчика кликов по ним
+ * @param {Array} [tripPointsSorters=[]] Объект описания сортеров
  */
 const renderSorters = (tripPointsSorters = []) => {
   const nodeSortersBar = document.querySelector(`.trip-sorting`);
@@ -200,7 +200,7 @@ const filterDayItems = (mapDayItems, filterId) => {
  * @description Отсортировать события маршрута
  * @param {Map} mapDayItems Map событий маршрута по дням
  * @param {String} sorterId ID фильтра
- * @return {Map} Отфильтрованный Map дней событий маршрута
+ * @return {Map} Отсортированный Map дней событий маршрута
  */
 const sortDayItems = (mapDayItems, sorterId) => {
   let sorterCallback;
