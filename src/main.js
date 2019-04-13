@@ -1,4 +1,5 @@
 import Filter from './make-filter';
+import Sorter from './make-sorter';
 import DayItem from './day-item';
 import DayItemEdit from './day-item-edit';
 import TripDay from './trip-day';
@@ -10,6 +11,7 @@ import Store from './store';
 import {
   SERVER_DATA,
   pointsFilters,
+  pointsSorters,
   mapItemsTypes
 } from './make-data';
 import './stat';
@@ -74,6 +76,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
     });
 
   renderFilters(pointsFilters);
+  renderSorters(pointsSorters);
 
   document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, () => {
     const nodeTripPoints = document.querySelector(`.trip-points`);
@@ -142,6 +145,25 @@ const renderFilters = (tripPointsFilters = []) => {
 };
 
 /**
+ * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
+ * @param {Array} [tripPointsSorters=[]] Объект описания фильтров
+ */
+const renderSorters = (tripPointsSorters = []) => {
+  const nodeSortersBar = document.querySelector(`.trip-sorting`);
+  const componentSorter = new Sorter(tripPointsSorters);
+
+  componentSorter.onClick = (evt) => {
+    const filteredDayItems = sortDayItems(mapPointsByDays, evt.target.id);
+
+    renderTripDays(filteredDayItems);
+  };
+
+  componentSorter.render();
+
+  nodeSortersBar.parentNode.replaceChild(componentSorter.element, nodeSortersBar);
+};
+
+/**
  * @description Отфильтровать события маршрута
  * @param {Map} mapDayItems Map событий маршрута по дням
  * @param {String} filterId ID фильтра
@@ -167,6 +189,44 @@ const filterDayItems = (mapDayItems, filterId) => {
 
   return [...mapDayItems].reduce((filteredMap, [key, dayItems]) => {
     const filteredItems = dayItems.filter(filterCallback);
+
+    filteredMap.set(key, filteredItems);
+
+    return filteredMap;
+  }, new Map());
+};
+
+/**
+ * @description Отсортировать события маршрута
+ * @param {Map} mapDayItems Map событий маршрута по дням
+ * @param {String} sorterId ID фильтра
+ * @return {Map} Отфильтрованный Map дней событий маршрута
+ */
+const sortDayItems = (mapDayItems, sorterId) => {
+  let sorterCallback;
+
+  switch (sorterId) {
+    case `sorting-offers`:
+      sorterCallback = (item) =>
+        item !== null &&
+        item.time.since > Date.now();
+      break;
+    case `sorting-price`:
+      sorterCallback = (item) =>
+        item !== null &&
+        item.time.since > Date.now();
+      break;
+    case `sorting-time`:
+      sorterCallback = (item) =>
+        item !== null &&
+        item.time.to < Date.now();
+      break;
+    case `sorting-event`:
+    default: return mapDayItems;
+  }
+
+  return [...mapDayItems].reduce((filteredMap, [key, dayItems]) => {
+    const filteredItems = dayItems.filter(sorterCallback);
 
     filteredMap.set(key, filteredItems);
 
