@@ -35,3 +35,27 @@ export const pointsFilters = [
     value: `past`
   }
 ];
+
+export const pointsSorters = [
+  {
+    id: `event`,
+    caption: `Event`,
+    value: `event`,
+    isChecked: true
+  },
+  {
+    id: `time`,
+    caption: `Time`,
+    value: `time`
+  },
+  {
+    id: `price`,
+    caption: `Price`,
+    value: `price`
+  },
+  {
+    id: `offers`,
+    caption: `Offers`,
+    value: `offers`
+  }
+];
