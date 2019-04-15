@@ -46,13 +46,25 @@ export default class Filter extends Component {
     return nodeFilterTemplate;
   }
 
+  /**
+   * @description Переключать видимость фильтров событий маршрута
+   * @param {Array} dayItems Массив данных описаний событий маршрута
+   * @memberof Filter
+   */
+  switchFiltersVisible(dayItems) {
+    this._filters.forEach((filter) => {
+      this._element.querySelector(`#filter-${filter.id} + label`)
+        .classList.toggle(`visually-hidden`, !filter.isVisible(dayItems));
+    });
+  }
+
   _generateFiltersTemplate() {
     let templates = ``;
 
     this._filters.forEach((filter) => {
       templates +=
         `<input type="radio" id="filter-${filter.id}" name="filter" value="${filter.value}" ${filter.isChecked ? `checked` : ``}>
-        <label class="trip-filter__item" for="filter-${filter.id}">${filter.caption}</label>`;
+        <label class="trip-filter__item visually-hidden" for="filter-${filter.id}">${filter.caption}</label>`;
     });
 
     return templates;

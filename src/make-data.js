@@ -1,5 +1,5 @@
 export const SERVER_DATA = {
-  AUTHORIZATION: `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`,
+  AUTHORIZATION: `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg7=`,
   END_POINT: `https://es8-demo-srv.appspot.com/big-trip`,
   POINTS_STORE_KEY: `points-store-key`
 };
@@ -22,17 +22,20 @@ export const pointsFilters = [
     id: `everything`,
     caption: `Everything`,
     value: `everything`,
-    isChecked: true
+    isChecked: true,
+    isVisible: () => true
   },
   {
     id: `future`,
     caption: `Future`,
-    value: `future`
+    value: `future`,
+    isVisible: (dayItems) => dayItems.some((item) => item.time.since > Date.now())
   },
   {
     id: `past`,
     caption: `Past`,
-    value: `past`
+    value: `past`,
+    isVisible: (dayItems) => dayItems.some((item) => item.time.to < Date.now())
   }
 ];
 

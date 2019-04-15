@@ -22,7 +22,7 @@ export default class ModelItem {
       since: data[`date_from`] || Date.now(),
       to: data[`date_to`] || Date.now()
     };
-    this.price = data[`base_price`] || 0;
+    this.price = parseInt(data[`base_price`], 10) || 0;
     this.offers = (data[`offers`] || []).reduce((map, offer) => {
       map.set(offer.title, offer);
 

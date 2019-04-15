@@ -171,7 +171,7 @@ export default class DayItemEdit extends Component {
     this._destination = data.destination;
     this._caption = data.caption;
     this._time = data.time;
-    this._price = data.price;
+    this._price = parseInt(data.price, 10) || 0;
     this._offers = data.offers;
   }
 

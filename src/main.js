@@ -35,6 +35,7 @@ const provider = new Provider({
   generateId: () => (Date.now() + Math.random())
 });
 const componentTripTotalCost = new TripTotalCost();
+const componentFilter = new Filter(pointsFilters);
 
 window.addEventListener(`online`, () => {
   document.title = document.title.replace(/^\[OFFLINE\]\s(.*)/, `$1`);
@@ -46,6 +47,9 @@ window.addEventListener(`offline`, () => {
 });
 
 document.addEventListener(`DOMContentLoaded`, () => {
+  renderFilters(pointsFilters);
+  renderSorters(pointsSorters);
+
   processLoadingStatus(`loading`);
 
   provider.getPoints()
@@ -73,9 +77,6 @@ document.addEventListener(`DOMContentLoaded`, () => {
       });
     });
 
-  renderFilters(pointsFilters);
-  renderSorters(pointsSorters);
-
   document.querySelector(`.trip-controls__new-event`).addEventListener(`click`, () => {
     const nodeTripPoints = document.querySelector(`.trip-points`);
     const item = ModelItem.parseData({});
@@ -101,9 +102,6 @@ document.addEventListener(`DOMContentLoaded`, () => {
         .then((data) => {
           const keyDate = moment(data.time.since).format(`MMM D`);
 
-          componentNewDayItemEdit.unblock(`submit`);
-          componentNewDayItemEdit.unrender();
-
           if (mapPointsByDays.has(keyDate)) {
             mapPointsByDays.get(keyDate).push(data);
           } else {
@@ -111,6 +109,9 @@ document.addEventListener(`DOMContentLoaded`, () => {
           }
 
           renderTripDays(mapPointsByDays);
+
+          componentNewDayItemEdit.unblock(`submit`);
+          componentNewDayItemEdit.unrender();
         })
         .catch((err) => {
           componentNewDayItemEdit.shake();
@@ -156,13 +157,9 @@ const filterDayItems = (mapDayItems, filterId) => {
     default: return mapDayItems;
   }
 
-  return [...mapDayItems].reduce((filteredMap, [key, dayItems]) => {
-    const filteredItems = dayItems.filter(filterCallback);
-
-    filteredMap.set(key, filteredItems);
-
-    return filteredMap;
-  }, new Map());
+  return new Map([...mapDayItems].filter(
+      ([, dayItems]) => dayItems.filter(filterCallback).length)
+  );
 };
 
 /**
@@ -265,16 +262,16 @@ const refreshTripEvents = (data) => {
 
   mapPointsByDays = makeMapDays(data);
 
+  componentFilter.switchFiltersVisible(data);
+
   renderTripDays(mapPointsByDays);
 };
 
 /**
  * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
  */
-const renderFilters = (tripPointsFilters = []) => {
+const renderFilters = () => {
   const nodeFiltersBar = document.querySelector(`.trip-filter`);
-  const componentFilter = new Filter(tripPointsFilters);
 
   componentFilter.onClick = (evt) => {
     const filteredDayItems = filterDayItems(mapPointsByDays, evt.target.id);
@@ -283,6 +280,10 @@ const renderFilters = (tripPointsFilters = []) => {
   };
 
   componentFilter.render();
+
+  componentFilter.switchFiltersVisible(
+      provider.getPointsFromStore()
+  );
 
   nodeFiltersBar.parentNode.replaceChild(componentFilter.element, nodeFiltersBar);
 };
@@ -325,6 +326,11 @@ const renderTripTotalCost = () => {
 const renderTripDays = (mapDays = new Map()) => {
   const docFragmentTripDays = document.createDocumentFragment();
   const nodeTripPoints = document.querySelector(`.trip-points`);
+
+  // TODO: Переписать сортировку дней
+  mapDays = new Map([...mapDays.entries()].sort(([, pointsA], [, pointsB]) => {
+    return pointsA[0].time.since - pointsB[0].time.since;
+  }));
 
   [...mapDays].forEach(([day, points], index) => {
     if (points.length === 0) {
@@ -403,7 +409,6 @@ const renderTripDayItems = ({dayItems = [], nodeTripDay}) => {
 
       provider.deletePoint({id})
         .then(() => {
-          nodeTripDayItems.removeChild(componentDayItemEdit.element);
           componentDayItemEdit.unrender();
         })
         .catch((err) => {
