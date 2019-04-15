@@ -176,7 +176,12 @@ const sortDayItems = (dayItems, sorterId) => {
 
   switch (sorterId) {
     case `sorting-offers`:
-      sorterCallback = (itemA, itemB) => itemB.offers.size - itemA.offers.size;
+      sorterCallback = (itemA, itemB) => {
+        const countOffersA = [...(itemA.offers.values() || [])].filter((offer) => offer.accepted).length;
+        const countOffersB = [...(itemB.offers.values() || [])].filter((offer) => offer.accepted).length;
+
+        return countOffersB - countOffersA;
+      };
       break;
     case `sorting-price`:
       sorterCallback = (itemA, itemB) => itemB.price - itemA.price;
