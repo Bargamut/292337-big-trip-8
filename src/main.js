@@ -327,7 +327,6 @@ const renderTripDays = (mapDays = new Map()) => {
   const docFragmentTripDays = document.createDocumentFragment();
   const nodeTripPoints = document.querySelector(`.trip-points`);
 
-  // TODO: Переписать сортировку дней
   mapDays = new Map([...mapDays.entries()].sort(([, pointsA], [, pointsB]) => {
     return pointsA[0].time.since - pointsB[0].time.since;
   }));
