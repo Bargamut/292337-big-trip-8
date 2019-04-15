@@ -344,13 +344,14 @@ export default class DayItemEdit extends Component {
   _getTripOffersTemplate() {
     let template = ``;
 
-    template = [...(this._offers || [])].reduce((tplString, data) => {
+    template = [...(this._dataOffers.get(this._type) || [])].reduce((tplString, data) => {
       const [offerName, offer] = data;
       const offerID =
         `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
+      const currentOffer = this._offers.get(offerName);
 
       tplString +=
-        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${offer.accepted ? `checked` : ``}>
+        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${currentOffer && currentOffer.accepted ? `checked` : ``}>
         <label for="${offerID}" class="point__offers-label">
           <span class="point__offer-service">${offerName}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
         </label>`;

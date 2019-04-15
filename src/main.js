@@ -118,49 +118,19 @@ document.addEventListener(`DOMContentLoaded`, () => {
           throw err;
         });
     };
+
+    componentNewDayItemEdit.onEscape = (evt) => {
+      if (evt.key !== `Escape`) {
+        return;
+      }
+
+      nodeTripPoints.removeChild(componentNewDayItemEdit.element);
+      componentNewDayItemEdit.unrender();
+    };
   });
 
   renderTripTotalCost();
 });
-
-/**
- * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
- */
-const renderFilters = (tripPointsFilters = []) => {
-  const nodeFiltersBar = document.querySelector(`.trip-filter`);
-  const componentFilter = new Filter(tripPointsFilters);
-
-  componentFilter.onClick = (evt) => {
-    const filteredDayItems = filterDayItems(mapPointsByDays, evt.target.id);
-
-    renderTripDays(filteredDayItems);
-  };
-
-  componentFilter.render();
-
-  nodeFiltersBar.parentNode.replaceChild(componentFilter.element, nodeFiltersBar);
-};
-
-/**
- * @description Отрисовка сортеров точек маршрута с навешиванием обработчика кликов по ним
- * @param {Array} [tripPointsSorters=[]] Объект описания сортеров
- */
-const renderSorters = (tripPointsSorters = []) => {
-  const nodeSortersBar = document.querySelector(`.trip-sorting`);
-  const componentSorter = new Sorter(tripPointsSorters);
-
-  componentSorter.onClick = (evt) => {
-    const sortedDayItems = sortDayItems(provider.getPointsFromStore(), evt.target.id);
-    const mapDayItems = makeMapDays(sortedDayItems);
-
-    renderTripDays(mapDayItems);
-  };
-
-  componentSorter.render();
-
-  nodeSortersBar.parentNode.replaceChild(componentSorter.element, nodeSortersBar);
-};
 
 /**
  * @description Отфильтровать события маршрута
@@ -291,6 +261,45 @@ const refreshTripEvents = (data) => {
   mapPointsByDays = makeMapDays(data);
 
   renderTripDays(mapPointsByDays);
+};
+
+/**
+ * @description Отрисовка фильтров точек маршрута с навешиванием обработчика кликов по ним
+ * @param {Array} [tripPointsFilters=[]] Объект описания фильтров
+ */
+const renderFilters = (tripPointsFilters = []) => {
+  const nodeFiltersBar = document.querySelector(`.trip-filter`);
+  const componentFilter = new Filter(tripPointsFilters);
+
+  componentFilter.onClick = (evt) => {
+    const filteredDayItems = filterDayItems(mapPointsByDays, evt.target.id);
+
+    renderTripDays(filteredDayItems);
+  };
+
+  componentFilter.render();
+
+  nodeFiltersBar.parentNode.replaceChild(componentFilter.element, nodeFiltersBar);
+};
+
+/**
+ * @description Отрисовка сортеров точек маршрута с навешиванием обработчика кликов по ним
+ * @param {Array} [tripPointsSorters=[]] Объект описания сортеров
+ */
+const renderSorters = (tripPointsSorters = []) => {
+  const nodeSortersBar = document.querySelector(`.trip-sorting`);
+  const componentSorter = new Sorter(tripPointsSorters);
+
+  componentSorter.onClick = (evt) => {
+    const sortedDayItems = sortDayItems(provider.getPointsFromStore(), evt.target.id);
+    const mapDayItems = makeMapDays(sortedDayItems);
+
+    renderTripDays(mapDayItems);
+  };
+
+  componentSorter.render();
+
+  nodeSortersBar.parentNode.replaceChild(componentSorter.element, nodeSortersBar);
 };
 
 /**
