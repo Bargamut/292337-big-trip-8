@@ -78,7 +78,7 @@ export default class DayItem extends Component {
     this._destination = data.destination;
     this._caption = data.caption;
     this._time = data.time;
-    this._price = data.price;
+    this._price = parseInt(data.price, 10) || 0;
     this._offers = data.offers;
   }
 
@@ -106,13 +106,19 @@ export default class DayItem extends Component {
   _countDuration() {
     const a = moment(this._time.since);
     const b = moment(this._time.to);
-    const duration = moment.utc(
-        moment.duration(
-            b.diff(a)
-        ).asMilliseconds()
-    );
+    const duration = moment.duration(b.diff(a));
 
-    return duration.format(`H[h] m[m]`);
+    let template = `${duration.hours() ? `HH[h]` : ``} mm[m]`.trim();
+
+    if (duration.days()) {
+      const days = duration.days() > 10
+        ? duration.days()
+        : `0${duration.days()}`;
+
+      template = `${days}[d] ${template}`;
+    }
+
+    return moment.utc(duration.asMilliseconds()).format(template);
   }
 
   /**
@@ -121,7 +127,7 @@ export default class DayItem extends Component {
    * @memberof DayItem
    */
   _getTripOffersTemplate() {
-    return [...(this._offers || [])].reduce((template, data) => {
+    return [...(this._offers || [])].splice(0, 3).reduce((template, data) => {
       const [offerName, offer] = data;
 
       if (!offer.accepted) {

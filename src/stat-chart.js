@@ -1,5 +1,7 @@
 import Component from './component';
 import Chart from 'chart.js';
+import moment from 'moment';
+import TripTotalCost from './trip-total-cost';
 
 export default class StatChart extends Component {
   /**
@@ -70,14 +72,15 @@ export default class StatChart extends Component {
     return {
       money: (value) => {
         const label = `${value.icon} ${value.type.toUpperCase()}`;
+        const totalPrice = TripTotalCost.countPointsTotalCost(0, value);
 
         if (target.has(label)) {
-          target.get(label).total += value.price;
+          target.get(label).total += totalPrice;
           return;
         }
 
         target.set(label, {
-          total: value.price
+          total: totalPrice
         });
       },
       transport: (value) => {
@@ -90,6 +93,19 @@ export default class StatChart extends Component {
 
         target.set(label, {
           total: 1
+        });
+      },
+      timespend: (value) => {
+        const label = `${value.icon} ${value.type.toUpperCase()}`;
+        const duration = StatChart.countDuration(value.time);
+
+        if (target.has(label)) {
+          target.get(label).total += duration;
+          return;
+        }
+
+        target.set(label, {
+          total: duration
         });
       }
     };
@@ -119,6 +135,26 @@ export default class StatChart extends Component {
       }
     });
 
+    if (this._type === `timespend`) {
+      tempEntry.forEach((elem) => {
+        elem.total = Math.floor(elem.total);
+      });
+    }
+
     return tempEntry;
+  }
+
+  /**
+   * @description Вычислить продолжительность
+   * @static
+   * @return {String} Продолжительность в формате "H[h] m[m]"
+   * @memberof DayItem
+   */
+  static countDuration({since, to}) {
+    const a = moment(since);
+    const b = moment(to);
+    const duration = moment.duration(b.diff(a));
+
+    return duration.asHours();
   }
 }

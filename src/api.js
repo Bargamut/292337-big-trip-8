@@ -33,7 +33,7 @@ export default class API {
    */
   getOffers() {
     return this._load({url: `/offers`})
-      .then(this._toJSON)
+      .then(API.toJSON)
       .then(ModelOffer.parseDatas);
   }
 
@@ -44,7 +44,7 @@ export default class API {
    */
   getPoints() {
     return this._load({url: `/points`})
-      .then(this._toJSON)
+      .then(API.toJSON)
       .then(ModelItem.parseDatas);
   }
 
@@ -55,7 +55,7 @@ export default class API {
    */
   getDestinations() {
     return this._load({url: `/destinations`})
-      .then(this._toJSON)
+      .then(API.toJSON)
       .then(ModelDestination.parseDatas);
   }
 
@@ -73,7 +73,7 @@ export default class API {
       headers: new Headers({
         'Content-Type': `application/json`
       })
-    }).then(this._toJSON)
+    }).then(API.toJSON)
       .then(ModelItem.parseData);
   }
 
@@ -92,7 +92,7 @@ export default class API {
       headers: new Headers({
         'Content-Type': `application/json`
       })
-    }).then(this._toJSON)
+    }).then(API.toJSON)
       .then(ModelItem.parseData);
   }
 
@@ -124,7 +124,7 @@ export default class API {
         'Content-Type': `application/json`
       })
     })
-      .then(this._toJSON);
+      .then(API.toJSON);
   }
 
   /**
@@ -141,7 +141,7 @@ export default class API {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
-      .then(this._checkStatus)
+      .then(API.checkStatus)
       .catch((err) => {
         throw err;
       });
@@ -150,10 +150,11 @@ export default class API {
   /**
    * @description Проверить статус запроса
    * @param {Response} response Объект запроса
+   * @static
    * @return {Response} Объект запроса, если ответ в перечне 2**
    * @memberof API
    */
-  _checkStatus(response) {
+  static checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {
       return response;
     } else {
@@ -164,10 +165,11 @@ export default class API {
   /**
    * @description Конвертация объекта запроса в JSON
    * @param {Response} response Объект запроса
+   * @static
    * @return {JSON}
    * @memberof API
    */
-  _toJSON(response) {
+  static toJSON(response) {
     return response.json();
   }
 }

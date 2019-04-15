@@ -3,6 +3,9 @@ import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import _ from 'lodash';
 
+const MILLISECONDS = 1000;
+const ANIMATION_TIMEOUT = 600;
+
 /**
  * @description Класс компонента события маршрута
  * @export
@@ -20,6 +23,7 @@ export default class DayItemEdit extends Component {
    */
   constructor(item, dataDestinations, dataItemsTypes, dataOffers) {
     super();
+
     this._id = item.id;
     this._type = item.type;
     this._icon = item.icon;
@@ -37,10 +41,12 @@ export default class DayItemEdit extends Component {
 
     this._onClickSubmit = this._onClickSubmit.bind(this);
     this._onClickDelete = this._onClickDelete.bind(this);
+    this._onPressEscape = this._onPressEscape.bind(this);
     this._onSubmit = null;
     this._onDelete = null;
+    this._onEscape = null;
 
-    this._isFavorite = false;
+    this._isFavorite = item.isFavorite;
 
     this._onChangeType = this._onChangeType.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
@@ -146,6 +152,15 @@ export default class DayItemEdit extends Component {
   }
 
   /**
+   * @description Сеттер функции-обработчика выхода из режима редактирования
+   * @param {Function} callback Функция-обработчик
+   * @memberof DayItemEdit
+   */
+  set onEscape(callback) {
+    this._onEscape = callback;
+  }
+
+  /**
    * @description Обновить данные компонента
    * @param {Object} data Объект данных, описывающих событие
    * @memberof DayItemEdit
@@ -156,7 +171,7 @@ export default class DayItemEdit extends Component {
     this._destination = data.destination;
     this._caption = data.caption;
     this._time = data.time;
-    this._price = data.price;
+    this._price = parseInt(data.price, 10) || 0;
     this._offers = data.offers;
   }
 
@@ -207,8 +222,6 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   shake() {
-    const ANIMATION_TIMEOUT = 600;
-
     this._element.style.animation = `shake ${ANIMATION_TIMEOUT / 1000}s`;
     this._element.style.border = `1px solid red`;
 
@@ -226,8 +239,6 @@ export default class DayItemEdit extends Component {
    * @memberof DayItemEdit
    */
   createMapper(target) {
-    const MILLISECONDS = 1000;
-
     return {
       'travel-way': (value) => {
         const dataItem = this._dataItems.get(value);
@@ -240,6 +251,7 @@ export default class DayItemEdit extends Component {
       'date-start': (value) => (target.time.since = value * MILLISECONDS),
       'date-end': (value) => (target.time.to = value * MILLISECONDS),
       'price': (value) => (target.price = parseInt(value, 10)),
+      'favorite': (value) => (target.isFavorite = value),
       'offer': (value) => (target.offers.get(value).accepted = true)
     };
   }
@@ -269,6 +281,8 @@ export default class DayItemEdit extends Component {
     nodeItemForm.addEventListener(`submit`, this._onClickSubmit);
     nodeItemForm.addEventListener(`reset`, this._onClickDelete);
     nodeItemFavorite.addEventListener(`click`, this._onChangeFavorite);
+
+    document.addEventListener(`keyup`, this._onPressEscape);
 
     const startInstanse = flatpickr(
         nodeTimeStart,
@@ -309,6 +323,8 @@ export default class DayItemEdit extends Component {
     nodeItemForm.removeEventListener(`reset`, this._onClickDelete);
     nodeItemFavorite.removeEventListener(`click`, this._onChangeFavorite);
 
+    document.removeEventListener(`keyup`, this._onPressEscape);
+
     this._nodeItemForm = null;
   }
 
@@ -328,13 +344,14 @@ export default class DayItemEdit extends Component {
   _getTripOffersTemplate() {
     let template = ``;
 
-    template = [...(this._offers || [])].reduce((tplString, data) => {
+    template = [...(this._dataOffers.get(this._type) || [])].reduce((tplString, data) => {
       const [offerName, offer] = data;
       const offerID =
         `${offerName.toLowerCase().replace(/ /, `-`)}-${this._id}`;
+      const currentOffer = this._offers.get(offerName);
 
       tplString +=
-        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${offer.accepted ? `checked` : ``}>
+        `<input class="point__offers-input visually-hidden" type="checkbox" id="${offerID}" name="offer" value="${offerName}" ${currentOffer && currentOffer.accepted ? `checked` : ``}>
         <label for="${offerID}" class="point__offers-label">
           <span class="point__offer-service">${offerName}</span> + &euro;<span class="point__offer-price">${offer.price}</span>
         </label>`;
@@ -420,7 +437,10 @@ export default class DayItemEdit extends Component {
     const tempEntry = {
       type: ``,
       icon: ``,
+      isFavorite: false,
       destination: ``,
+      description: this._description,
+      pictures: this._pictures,
       caption: ``,
       time: {
         since: 0,
@@ -511,6 +531,19 @@ export default class DayItemEdit extends Component {
 
     if (this._onDelete instanceof Function) {
       this._onDelete({id: this._id});
+    }
+  }
+
+  /**
+   * @description Обработчик выхода из режима редактирования
+   * @param {Event} evt - объект события
+   * @memberof DayItemEdit
+   */
+  _onPressEscape(evt) {
+    evt.preventDefault();
+
+    if (this._onEscape instanceof Function) {
+      this._onEscape(evt);
     }
   }
 

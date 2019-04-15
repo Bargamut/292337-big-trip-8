@@ -1,3 +1,9 @@
+export const SERVER_DATA = {
+  AUTHORIZATION: `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg7=`,
+  END_POINT: `https://es8-demo-srv.appspot.com/big-trip`,
+  POINTS_STORE_KEY: `points-store-key`
+};
+
 export const mapItemsTypes = new Map([
   [`bus`, {icon: `🚌`, group: `transport`, caption: `Bus to `}],
   [`train`, {icon: `🚂`, group: `transport`, caption: `Train to `}],
@@ -16,16 +22,43 @@ export const pointsFilters = [
     id: `everything`,
     caption: `Everything`,
     value: `everything`,
-    isChecked: true
+    isChecked: true,
+    isVisible: () => true
   },
   {
     id: `future`,
     caption: `Future`,
-    value: `future`
+    value: `future`,
+    isVisible: (dayItems) => dayItems.some((item) => item.time.since > Date.now())
   },
   {
     id: `past`,
     caption: `Past`,
-    value: `past`
+    value: `past`,
+    isVisible: (dayItems) => dayItems.some((item) => item.time.to < Date.now())
+  }
+];
+
+export const pointsSorters = [
+  {
+    id: `event`,
+    caption: `Event`,
+    value: `event`,
+    isChecked: true
+  },
+  {
+    id: `time`,
+    caption: `Time`,
+    value: `time`
+  },
+  {
+    id: `price`,
+    caption: `Price`,
+    value: `price`
+  },
+  {
+    id: `offers`,
+    caption: `Offers`,
+    value: `offers`
   }
 ];

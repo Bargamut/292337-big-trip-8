@@ -1,157 +1,238 @@
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import StatChart from './stat-chart';
 import API from './api';
+import Store from './store';
+import Provider from './provider';
+import {SERVER_DATA} from './make-data';
 
 let currentPoints = [];
-const AUTHORIZATION = `Basic gKJghkgjgIKGKkjhkj7Yt67Ikg=`;
-const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({
-  endPoint: END_POINT,
-  authorization: AUTHORIZATION
+  endPoint: SERVER_DATA.END_POINT,
+  authorization: SERVER_DATA.AUTHORIZATION
+});
+const store = new Store({
+  keyStorage: SERVER_DATA.POINTS_STORE_KEY,
+  storage: localStorage
+});
+const provider = new Provider({
+  api,
+  store,
+  generateId: () => (Date.now() + Math.random())
 });
 
-const componentChartMoney = new StatChart({
-  type: `money`,
-  width: 900,
-  conf: {
-    plugins: [ChartDataLabels],
-    type: `horizontalBar`,
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        backgroundColor: `#ffffff`,
-        hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
-      }]
-    },
-    options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          font: {
-            size: 13
-          },
-          color: `#000000`,
-          anchor: `end`,
-          align: `start`,
-          formatter: (val) => `€ ${val}`
+const chartComponents = new Map([
+  [`money`, new StatChart({
+    type: `money`,
+    width: 900,
+    conf: {
+      plugins: [ChartDataLabels],
+      type: `horizontalBar`,
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: `#ffffff`,
+          hoverBackgroundColor: `#ffffff`,
+          anchor: `start`
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+          datalabels: {
+            font: {
+              size: 13
+            },
+            color: `#000000`,
+            anchor: `end`,
+            align: `start`,
+            formatter: (val) => `€ ${val}`
+          }
+        },
+        title: {
+          display: true,
+          text: `MONEY`,
+          fontColor: `#000000`,
+          fontSize: 23,
+          position: `left`
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: `#000000`,
+              padding: 5,
+              fontSize: 13,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            barThickness: 44,
+          }],
+          xAxes: [{
+            ticks: {
+              display: false,
+              beginAtZero: true,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            minBarLength: 50
+          }],
+        },
+        legend: {
+          display: false
+        },
+        tooltips: {
+          enabled: false,
         }
-      },
-      title: {
-        display: true,
-        text: `MONEY`,
-        fontColor: `#000000`,
-        fontSize: 23,
-        position: `left`
-      },
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: `#000000`,
-            padding: 5,
-            fontSize: 13,
-          },
-          gridLines: {
-            display: false,
-            drawBorder: false
-          },
-          barThickness: 44,
-        }],
-        xAxes: [{
-          ticks: {
-            display: false,
-            beginAtZero: true,
-          },
-          gridLines: {
-            display: false,
-            drawBorder: false
-          },
-          minBarLength: 50
-        }],
-      },
-      legend: {
-        display: false
-      },
-      tooltips: {
-        enabled: false,
       }
     }
-  }
-});
-
-const componentChartTransport = new StatChart({
-  type: `transport`,
-  width: 900,
-  conf: {
-    plugins: [ChartDataLabels],
-    type: `horizontalBar`,
-    data: {
-      labels: [],
-      datasets: [{
-        data: [],
-        backgroundColor: `#ffffff`,
-        hoverBackgroundColor: `#ffffff`,
-        anchor: `start`
-      }]
-    },
-    options: {
-      responsive: false,
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: {
-          font: {
-            size: 13
-          },
-          color: `#000000`,
-          anchor: `end`,
-          align: `start`,
-          formatter: (val) => `${val}x`
+  })],
+  [`transport`, new StatChart({
+    type: `transport`,
+    width: 900,
+    conf: {
+      plugins: [ChartDataLabels],
+      type: `horizontalBar`,
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: `#ffffff`,
+          hoverBackgroundColor: `#ffffff`,
+          anchor: `start`
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+          datalabels: {
+            font: {
+              size: 13
+            },
+            color: `#000000`,
+            anchor: `end`,
+            align: `start`,
+            formatter: (val) => `${val}x`
+          }
+        },
+        title: {
+          display: true,
+          text: `TRANSPORT`,
+          fontColor: `#000000`,
+          fontSize: 23,
+          position: `left`
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: `#000000`,
+              padding: 5,
+              fontSize: 13,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            barThickness: 44,
+          }],
+          xAxes: [{
+            ticks: {
+              display: false,
+              beginAtZero: true,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            minBarLength: 50
+          }],
+        },
+        legend: {
+          display: false
+        },
+        tooltips: {
+          enabled: false,
         }
-      },
-      title: {
-        display: true,
-        text: `TRANSPORT`,
-        fontColor: `#000000`,
-        fontSize: 23,
-        position: `left`
-      },
-      scales: {
-        yAxes: [{
-          ticks: {
-            fontColor: `#000000`,
-            padding: 5,
-            fontSize: 13,
-          },
-          gridLines: {
-            display: false,
-            drawBorder: false
-          },
-          barThickness: 44,
-        }],
-        xAxes: [{
-          ticks: {
-            display: false,
-            beginAtZero: true,
-          },
-          gridLines: {
-            display: false,
-            drawBorder: false
-          },
-          minBarLength: 50
-        }],
-      },
-      legend: {
-        display: false
-      },
-      tooltips: {
-        enabled: false,
       }
     }
-  }
-});
+  })],
+  [`time-spend`, new StatChart({
+    type: `timespend`,
+    width: 900,
+    conf: {
+      plugins: [ChartDataLabels],
+      type: `horizontalBar`,
+      data: {
+        labels: [],
+        datasets: [{
+          data: [],
+          backgroundColor: `#ffffff`,
+          hoverBackgroundColor: `#ffffff`,
+          anchor: `start`
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+          datalabels: {
+            font: {
+              size: 13
+            },
+            color: `#000000`,
+            anchor: `end`,
+            align: `start`,
+            formatter: (val) => `${val}H`
+          }
+        },
+        title: {
+          display: true,
+          text: `TIME SPENT`,
+          fontColor: `#000000`,
+          fontSize: 23,
+          position: `left`
+        },
+        scales: {
+          yAxes: [{
+            ticks: {
+              fontColor: `#000000`,
+              padding: 5,
+              fontSize: 13,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            barThickness: 44,
+          }],
+          xAxes: [{
+            ticks: {
+              display: false,
+              beginAtZero: true,
+            },
+            gridLines: {
+              display: false,
+              drawBorder: false
+            },
+            minBarLength: 50
+          }],
+        },
+        legend: {
+          display: false
+        },
+        tooltips: {
+          enabled: false,
+        }
+      }
+    }
+  })]
+]);
 
 document.addEventListener(`DOMContentLoaded`, () => {
   const nodeTable = document.querySelector(`#table`);
@@ -175,7 +256,13 @@ document.addEventListener(`DOMContentLoaded`, () => {
       nodeTable.classList.add(`visually-hidden`);
       nodeStats.classList.remove(`visually-hidden`);
 
-      updateComponents();
+      provider.getPoints()
+        .then((data) => {
+          currentPoints = data;
+
+          renderCharts();
+          updateComponents();
+        });
     } else if (viewType === `#table`) {
       nodeTable.classList.remove(`visually-hidden`);
       nodeStats.classList.add(`visually-hidden`);
@@ -183,24 +270,7 @@ document.addEventListener(`DOMContentLoaded`, () => {
 
     return false;
   });
-
-  api.getPoints()
-    .then((data) => {
-      currentPoints = data;
-
-      renderCharts();
-      updateComponents();
-    });
 });
-
-/**
- * @description Отфильтровать события маршрута
- * @param {Array} dayItems Массив данных событий маршрута
- * @return {Array} Отфильтрованный массив событий маршрута
- */
-const filterDayItems = (dayItems) => {
-  return dayItems;
-};
 
 /**
  * @description Проверить, является ли тип события транспортом
@@ -215,35 +285,30 @@ const isTransport = (type) => {
  * @description Обновить компоненты
  */
 const updateComponents = () => {
-  let filteredDayItems = filterDayItems(currentPoints);
+  chartComponents.forEach((component, key) => {
+    const data = (key === `transport`)
+      ? currentPoints.filter((dayItem) => isTransport(dayItem.type))
+      : currentPoints;
 
-  componentChartMoney.update(filteredDayItems);
-
-  filteredDayItems = filteredDayItems.filter((dayItem) => isTransport(dayItem.type));
-
-  componentChartTransport.update(filteredDayItems);
+    component.update(data);
+  });
 };
 
 /**
  * @description Отрисовать компоненты графиков статистики
  */
 const renderCharts = () => {
-  const nodeChartsMoney = document.querySelector(`.statistic__money`);
-  const nodeChartsTransport = document.querySelector(`.statistic__transport`);
+  chartComponents.forEach((component, key) => {
+    if (component.element) {
+      return;
+    }
 
-  componentChartMoney.render();
-  componentChartTransport.render();
+    const nodeChart = document.querySelector(`.statistic__${key}`);
 
-  nodeChartsMoney.parentNode.replaceChild(
-      componentChartMoney.element,
-      nodeChartsMoney
-  );
+    component.render();
 
-  nodeChartsTransport.parentNode.replaceChild(
-      componentChartTransport.element,
-      nodeChartsTransport
-  );
+    nodeChart.parentNode.replaceChild(component.element, nodeChart);
 
-  componentChartMoney.createChart();
-  componentChartTransport.createChart();
+    component.createChart();
+  });
 };

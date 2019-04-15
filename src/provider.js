@@ -32,7 +32,7 @@ export default class Provider {
    * @memberof Provider
    */
   getPoints() {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.getPoints()
         .then((points) => {
           points.forEach(this._putToStorage);
@@ -41,11 +41,22 @@ export default class Provider {
         });
     }
 
-    const rawPointsMap = this._store.getAll();
-    const rawPoints = this._objectToArray(rawPointsMap);
-    const points = ModelItem.parseDatas(rawPoints);
+    const points = this.getPointsFromStore();
 
     return Promise.resolve(points);
+  }
+
+  /**
+   * @description Запросит данные по точкам маршрута
+   * из локального хранилища
+   * @return {array} Массив данных по точкам маршрута
+   * @memberof Provider
+   */
+  getPointsFromStore() {
+    const rawPointsMap = this._store.getAll();
+    const rawPoints = Provider.objectToArray(rawPointsMap);
+
+    return ModelItem.parseDatas(rawPoints);
   }
 
   /**
@@ -64,7 +75,7 @@ export default class Provider {
    * @memberof Provider
    */
   createPoint({point}) {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.createPoint({point})
         .then(this._putToStorage);
     }
@@ -86,7 +97,7 @@ export default class Provider {
    * @memberof Provider
    */
   updatePoint({id, data}) {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.updatePoint({id, data})
         .then(this._putToStorage);
     }
@@ -106,9 +117,9 @@ export default class Provider {
    * @memberof Provider
    */
   deletePoint({id}) {
-    if (this._isOnline()) {
+    if (Provider.isOnline()) {
       return this._api.deletePoint({id})
-        .thsn(() => {
+        .then(() => {
           this._store.removeItem({id});
         });
     }
@@ -126,7 +137,7 @@ export default class Provider {
    */
   syncPoints() {
     return this._api.syncPoints({
-      points: this._objectToArray(this._store.getAll())
+      points: Provider.objectToArray(this._store.getAll())
     })
     .then(() => {
       this._needSync = false;
@@ -135,20 +146,22 @@ export default class Provider {
 
   /**
    * @description Проверить статус подключения
+   * @static
    * @return {Boolean}
    * @memberof Provider
    */
-  _isOnline() {
+  static isOnline() {
     return window.navigator.onLine;
   }
 
   /**
    * @description Преобразовать объект данныхв массив
    * @param {Object} object Объект данных
+   * @static
    * @return {Array} Массив данных
    * @memberof Provider
    */
-  _objectToArray(object) {
+  static objectToArray(object) {
     return Object.keys(object).map((id) => object[id]);
   }
 
