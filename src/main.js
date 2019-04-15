@@ -17,8 +17,6 @@ import {
 import './stat';
 import moment from 'moment';
 
-// TODO: Найти и отсортировать
-
 let mapPointsByDays = new Map();
 const mapOffers = new Map();
 const mapDestinations = new Map();
@@ -153,9 +151,10 @@ const renderSorters = (tripPointsSorters = []) => {
   const componentSorter = new Sorter(tripPointsSorters);
 
   componentSorter.onClick = (evt) => {
-    const filteredDayItems = sortDayItems(mapPointsByDays, evt.target.id);
+    const sortedDayItems = sortDayItems(provider.getPointsFromStore(), evt.target.id);
+    const mapDayItems = makeMapDays(sortedDayItems);
 
-    renderTripDays(filteredDayItems);
+    renderTripDays(mapDayItems);
   };
 
   componentSorter.render();
@@ -198,40 +197,41 @@ const filterDayItems = (mapDayItems, filterId) => {
 
 /**
  * @description Отсортировать события маршрута
- * @param {Map} mapDayItems Map событий маршрута по дням
+ * @param {Array} dayItems Map событий маршрута по дням
  * @param {String} sorterId ID фильтра
- * @return {Map} Отсортированный Map дней событий маршрута
+ * @return {Array} Отсортированный массив дней событий маршрута
  */
-const sortDayItems = (mapDayItems, sorterId) => {
+const sortDayItems = (dayItems, sorterId) => {
   let sorterCallback;
 
   switch (sorterId) {
     case `sorting-offers`:
-      sorterCallback = (item) =>
-        item !== null &&
-        item.time.since > Date.now();
+      sorterCallback = (itemA, itemB) => itemB.offers.size - itemA.offers.size;
       break;
     case `sorting-price`:
-      sorterCallback = (item) =>
-        item !== null &&
-        item.time.since > Date.now();
+      sorterCallback = (itemA, itemB) => itemB.price - itemA.price;
       break;
     case `sorting-time`:
-      sorterCallback = (item) =>
-        item !== null &&
-        item.time.to < Date.now();
+      sorterCallback = (itemA, itemB) => getDuration(itemB) - getDuration(itemA);
       break;
     case `sorting-event`:
-    default: return mapDayItems;
+    default: return dayItems;
   }
 
-  return [...mapDayItems].reduce((filteredMap, [key, dayItems]) => {
-    const filteredItems = dayItems.filter(sorterCallback);
+  return dayItems.sort(sorterCallback);
+};
 
-    filteredMap.set(key, filteredItems);
+/**
+ * @description Посчитать длительност времени
+ * @param {ModelItem} item Объект данных события маршрута
+ * @return {Number} Количество милиссикунд дилтельности
+ */
+const getDuration = (item) => {
+  const a = moment(item.time.since);
+  const b = moment(item.time.to);
+  const duration = moment.duration(b.diff(a));
 
-    return filteredMap;
-  }, new Map());
+  return duration.asMilliseconds();
 };
 
 /**
